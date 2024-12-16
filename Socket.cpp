@@ -15,11 +15,13 @@ Socket::Socket(unsigned short port, int queue) :
 	addr.sin_addr.s_addr = 0;
 
 	if (bind(fd, (const struct sockaddr*)&addr, sizeof(addr)) < 0) {
+		close(fd);
 		std::cerr << "bind() failed: " << strerror(errno) << "\n";
 		return ;
 	}
 
 	if (listen(fd, queue) < 0) {
+		close(fd);
 		std::cerr << "listen() failed: " << strerror(errno) << "\n";
 		return ;
 	}
