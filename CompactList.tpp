@@ -17,11 +17,11 @@ public:
 		return (true);
 	}
 
-	int	compact() {
+	int	compact(bool (*predicat)(const T&)) {
 		int rcount = 0;
-
+		
 		for (int k = 0; k < size; k++) {
-			if (fds[k].fd == -1)
+			if (predicat(fds[k]))
 				rcount++;
 			else
 				fds[k - rcount] = fds[k];
