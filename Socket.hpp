@@ -10,8 +10,11 @@
 class Socket {
 public:
 	Socket() = delete;
+	Socket(const Socket &cpy) = delete;
 	Socket(unsigned short port, int queue);
 	~Socket();
+
+	Socket&	operator=(const Socket &cpy) = delete;
 
 	int		get_fd() const;
 	bool	is_enabled() const;
