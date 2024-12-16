@@ -3,6 +3,11 @@
 #include <vector>
 #include <poll.h>
 #include <fcntl.h>
+#include <fstream>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 
 #include "CompactList.tpp"
 
@@ -13,7 +18,34 @@ int	set_flag(int fd, int flag, bool enabled) {
 	return (fcntl(fd, F_SETFL, enabled ? (flags & ~flag) : (flags | flag)));
 }
 
+bool	handle_request(char *str, int fd) {
+	if (!strncmp(str, "STOP", 4))
+		return (true);
+	if (strncmp(str, "GET ", 4))
+		return (false);
 
+	*strchr(str + 5, ' ') = 0;
+	std::ifstream file(str + 5);
+	if (!file.is_open()) {
+		std::cout << "File not found\n";
+		send(fd, "HTTP/1.1 404 Not Found", 23, 0);
+	} else {
+		std::cout << "Sending " << (str + 5) << "\n";
+
+		std::ostringstream ss;
+
+		ss << "HTTP/1.1 200 OK\n";
+		ss << "Content-Length: " << 200 << "\n";
+
+		ss << file.rdbuf();
+		//ss << file.rdbuf();
+
+		std::string s = ss.str();
+		std::cout << s << "\n";
+		send(fd, s.c_str(), s.size(), 0);
+	}
+	return (false);
+}
 
 int	main() {
 	Socket sock(8080, 5);
@@ -77,9 +109,7 @@ int	main() {
 						fds.at(k).fd = -1;
 					}
 
-					std::cout << "Received:\n" << buffer << "\n";
-					if (!strncmp(buffer, "STOP", 4))
-						stop = true;
+					stop = handle_request(buffer, fds.at(k).fd);
 				}
 			}
 			count--;
