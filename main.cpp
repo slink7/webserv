@@ -84,6 +84,8 @@ int	main() {
 			}
 			count--;
 		}
-		fds.compact();
+		fds.compact([](const pollfd& poll) -> bool {
+			return (poll.fd == -1);
+		});
 	}
 }
