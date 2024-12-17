@@ -9,6 +9,12 @@ Socket::Socket(unsigned short port, int queue) :
 		return ;
 	}
 
+	int opt = 1;
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
+        std::cerr << "setsockopt() failed: " << strerror(errno) << "\n";
+		return ;
+	}
+
 	struct sockaddr_in	addr = {0};
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);

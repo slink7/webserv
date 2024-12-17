@@ -75,8 +75,7 @@ int	main() {
 
 	set_flag(sock.get_fd(), O_NONBLOCK, true);
 
-	int on = 1;
-	setsockopt(sock.get_fd(), SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on));
+	
 
 	
 	CompactList<pollfd> fds;
