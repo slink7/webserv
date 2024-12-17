@@ -28,21 +28,41 @@ bool	handle_request(char *str, int fd) {
 	std::ifstream file(str + 5);
 	if (!file.is_open()) {
 		std::cout << "File not found\n";
-		send(fd, "HTTP/1.1 404 Not Found", 23, 0);
+		std::string r404 = 
+			"HTTP/1.1 404 Not Found\n"
+			"Server: Webserv\n"
+			"Content-Type: text/html\n"
+			"Content-Length: 87\n"
+			"Connection: keep-alive\n"
+			"\n"
+			"<html>\n"
+			"<head><title>404</title></head>\n"
+			"<body><h1>404 Not Found...</h1></body>\n"
+			"</html>\n";
+		int e = send(fd, r404.c_str(), r404.size(), 0);
+		std::cout << "Sent " << e << "b\n";
 	} else {
 		std::cout << "Sending " << (str + 5) << "\n";
 
 		std::ostringstream ss;
+		std::ostringstream f;
+		f << file.rdbuf();
+		std::string sf = f.str();
 
 		ss << "HTTP/1.1 200 OK\n";
-		ss << "Content-Length: " << 200 << "\n";
+		ss << "Server: Webserv\n";
+		ss << "Content-Type: text/html\n";
+		ss << "Connection: keep-alive\n";
+		ss << "Content-Length: " << sf.size() << "\n";
+		ss << "\n";
 
-		ss << file.rdbuf();
+		ss << sf;
 		//ss << file.rdbuf();
 
 		std::string s = ss.str();
 		std::cout << s << "\n";
-		send(fd, s.c_str(), s.size(), 0);
+		int e = send(fd, s.c_str(), s.size(), 0);
+		std::cout << "Sent " << e << "b/" << s.size() << "b on fd " << fd << "\n";
 	}
 	return (false);
 }
@@ -104,12 +124,12 @@ int	main() {
 							stop = true;
 						}
 					}
+					stop = handle_request(buffer, fds.at(k).fd);
 					if (r < RECV_SIZE) {
 						close(fds.at(k).fd);
 						fds.at(k).fd = -1;
 					}
 
-					stop = handle_request(buffer, fds.at(k).fd);
 				}
 			}
 			count--;
