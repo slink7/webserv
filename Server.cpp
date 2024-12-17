@@ -77,40 +77,68 @@ bool Server::handle_event(pollfd &fd)
 	return false;
 }
 
+void	send_403(int fd) {
+	std::string r403 =
+		"HTTP/1.1 403 Forbidden\n"
+		"Server: Webserv\n"
+		"Content-Type: text/html\n"
+		"Content-Length: 87\n"
+		"Connection: keep-alive\n"
+		"\n"
+		"<html>\n"
+		"<head><title>403</title></head>\n"
+		"<body><h1>403 Forbidden...</h1></body>\n"
+		"</html>\n";
+}
+
+void	send_404(int fd) {
+	std::string r404 = 
+		"HTTP/1.1 404 Not Found\n"
+		"Server: Webserv\n"
+		"Content-Type: text/html\n"
+		"Content-Length: 87\n"
+		"Connection: keep-alive\n"
+		"\n"
+		"<html>\n"
+		"<head><title>404</title></head>\n"
+		"<body><h1>404 Not Found...</h1></body>\n"
+		"</html>\n";
+	int e = send(fd, r404.c_str(), r404.size(), 0);
+	if (e < 0) {
+		std::cerr << "send() failed: " << strerror(errno) << "\n";
+	}
+}
+
 bool Server::handle_request(char *str, int fd)
 {
+	std::cout << "Handling request\n";
+
 	if (!strncmp(str, "STOP", 4))
 		return (true);
 	if (strncmp(str, "GET ", 4))
 		return (false);
 
 	*strchr(str + 5, ' ') = 0;
+
+	if (str[strlen(str) - 1] == '/' || !access(str + 5, F_OK | R_OK)) {
+		send_403(fd);
+		return (false);
+	}
 	std::ifstream file(str + 5);
 	if (!file.is_open()) {
-		std::cout << "File not found\n";
-		std::string r404 = 
-			"HTTP/1.1 404 Not Found\n"
-			"Server: Webserv\n"
-			"Content-Type: text/html\n"
-			"Content-Length: 87\n"
-			"Connection: keep-alive\n"
-			"\n"
-			"<html>\n"
-			"<head><title>404</title></head>\n"
-			"<body><h1>404 Not Found...</h1></body>\n"
-			"</html>\n";
-		int e = send(fd, r404.c_str(), r404.size(), 0);
-		std::cout << "Sent " << e << "b\n";
+		send_404(fd);
+		return (false);
 	} else {
 		std::cout << "Sending " << (str + 5) << "\n";
 
-		std::ostringstream ss;
 		std::ostringstream f;
 		f << file.rdbuf();
+
 		std::string sf = f.str();
 
 		char *c = strrchr(str + 5, '.');
 
+		std::ostringstream ss;
 		ss << "HTTP/1.1 200 OK\n";
 		ss << "Server: Webserv\n";
 		ss << "Content-Type: text/" << c + 1 << "\n";
