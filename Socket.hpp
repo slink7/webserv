@@ -2,6 +2,7 @@
 #define SOCKET_HPP
 
 #include <sys/socket.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <iostream>
 #include <unistd.h>
@@ -18,6 +19,7 @@ public:
 
 	int		get_fd() const;
 	bool	is_enabled() const;
+	int		set_flag(int flag, bool enabled);
 
 private:
 	bool	enabled;

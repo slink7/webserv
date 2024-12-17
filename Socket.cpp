@@ -48,3 +48,8 @@ bool Socket::is_enabled() const
 {
 	return (enabled);
 }
+
+int Socket::set_flag(int flag, bool enabled) {
+	int flags = fcntl(fd, F_GETFL);
+	return (fcntl(fd, F_SETFL, enabled ? (flags & ~flag) : (flags | flag)));
+}
