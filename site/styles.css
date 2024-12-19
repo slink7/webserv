@@ -4,14 +4,14 @@
 
 #bombo {
 	animation-name: appear, spin;
-	animation-duration: 20s;
+	animation-duration: 10s;
 }
 
 div {
 	max-width: 10%;
 }
 
-p:hover, div:hover, h1:hover {
+p:hover, h1:hover {
 	
 	animation-name: spin;
 	animation-duration: 4s;
