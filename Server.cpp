@@ -11,8 +11,8 @@ Server::Server(int port) :
 
 	socket.set_flag(O_NONBLOCK, true);
 
+	fds.add({0, POLLIN, 0});
 	fds.add({socket.get_fd(), POLLIN, 0});
-	
 }
 
 void Server::start() {
@@ -34,14 +34,23 @@ void Server::start() {
 			return (poll.fd == -1);
 		});
 	}
+	for (int k = 0; k < fds.get_size(); k++) {
+		close(fds.at(k).fd);
+		fds.at(k).fd = -1;
+	}
 }
 
 bool Server::handle_event(pollfd &fd)
 {
 	if (!fd.revents)
 		return (false);
-	
-	if (fd.fd == socket.get_fd()) {
+
+	if (fd.fd == 0) {
+		std::cout << "STDOUT\n";
+		running = false;
+	}
+
+	else if (fd.fd == socket.get_fd()) {
 
 		int client_fd = accept(fd.fd, 0, 0);
 		if (client_fd < 0) {
@@ -113,19 +122,25 @@ bool Server::handle_request(char *str, int fd)
 {
 	std::cout << "Handling request\n";
 
-	if (!strncmp(str, "STOP", 4))
+	if (!strncmp(str, "STOP", 4)) {
+		std::cout << "STOP request\n";
 		return (true);
-	if (strncmp(str, "GET ", 4))
+	}
+	if (strncmp(str, "GET ", 4)) {
+		std::cout << "GET resquest\n";	
 		return (false);
+	}
 
 	*strchr(str + 5, ' ') = 0;
 
-	if (str[strlen(str) - 1] == '/' || !access(str + 5, F_OK | R_OK)) {
+	if (str[strlen(str) - 1] == '/' || access(str + 5, F_OK | R_OK)) {
+		std::cout << "Sending 403\n";
 		send_403(fd);
 		return (false);
 	}
 	std::ifstream file(str + 5);
 	if (!file.is_open()) {
+		std::cout << "Sending 404\n";
 		send_404(fd);
 		return (false);
 	} else {
@@ -150,7 +165,8 @@ bool Server::handle_request(char *str, int fd)
 		//ss << file.rdbuf();
 
 		std::string s = ss.str();
-		std::cout << s << "\n";
+		if (s.size() < 8192)
+			std::cout << s << "\n";
 		int e = send(fd, s.c_str(), s.size(), 0);
 		std::cout << "Sent " << e << "b/" << s.size() << "b on fd " << fd << "\n";
 	}
