@@ -7,6 +7,7 @@
 
 #include "Socket.hpp"
 #include "CompactList.tpp"
+#include "Messenger.hpp"
 
 #define RECV_SIZE 1024
 
@@ -27,7 +28,7 @@ private:
 	CompactList<pollfd>	fds;
 
 	bool	handle_event(pollfd& fd);
-	bool	handle_request(char *str, int fd);
+	bool	handle_request(std::string& req, int fd);
 };
 
 #endif

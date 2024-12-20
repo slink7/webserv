@@ -9,7 +9,7 @@ Server::Server(int port) :
 		return ;
 	}
 
-	socket.set_flag(O_NONBLOCK, true);
+	socket.set_flag(O_NONBLOCK, false);
 
 	fds.add({0, POLLIN, 0});
 	fds.add({socket.get_fd(), POLLIN, 0});
@@ -35,6 +35,7 @@ void Server::start() {
 		});
 	}
 	for (int k = 0; k < fds.get_size(); k++) {
+		std::cout << "\tclosed(" << fds.at(k).fd << ")\n";
 		close(fds.at(k).fd);
 		fds.at(k).fd = -1;
 	}
@@ -59,27 +60,22 @@ bool Server::handle_event(pollfd &fd)
 				running = false;
 			}
 		}
+		std::cout << "\topenned(" << client_fd << ")\n";
+		// Socket::set_flag(client_fd, O_NONBLOCK, true);
 		fds.add({client_fd, POLLIN, 0});
 
 	} else {
 
 		if (fd.revents == POLLIN) {
 			
-			std::cout << "\tReceiving from " << fd.fd << "\n";
+			std::cout << "\n\tReceiving from " << fd.fd << "\n";
 
-			char buffer[RECV_SIZE] = {0};
-			int r = recv(fd.fd, buffer, sizeof(buffer) - 1, 0);
-			if (r < 0) {
-				if (r != EWOULDBLOCK) {
-					std::cout << "recv() failed: " << strerror(errno) << "\n";
-					running = false;
-				}
-			}
-			running = !handle_request(buffer, fd.fd);
-			if (r < RECV_SIZE) {
-				close(fd.fd);
-				fd.fd = -1;
-			}
+			std::string request;
+			int r = msg::receive(fd.fd, request);
+			running = !handle_request(request, fd.fd);
+			std::cout << "\tclosed(" << fd.fd << ")\n";
+			close(fd.fd);
+			fd.fd = -1;
 
 		}
 	}
@@ -112,51 +108,48 @@ void	send_404(int fd) {
 		"<head><title>404</title></head>\n"
 		"<body><h1>404 Not Found...</h1></body>\n"
 		"</html>\n";
-	int e = send(fd, r404.c_str(), r404.size(), 0);
-	if (e < 0) {
-		std::cerr << "send() failed: " << strerror(errno) << "\n";
-	}
+	msg::send(fd, r404);
 }
 
-bool Server::handle_request(char *str, int fd)
+bool Server::handle_request(std::string& req, int fd)
 {
-	std::cout << "Handling request\n";
+	std::cout << "\n\tHandling request:\n";
 
-	if (!strncmp(str, "STOP", 4)) {
+	if (!req.compare("STOP")) {
 		std::cout << "STOP request\n";
 		return (true);
 	}
-	if (strncmp(str, "GET ", 4)) {
+	if (!req.compare("GET ")) {
 		std::cout << "GET resquest\n";	
 		return (false);
 	}
 
-	*strchr(str + 5, ' ') = 0;
+	req = req.substr(0, req.find(' ', 5));
 
-	if (str[strlen(str) - 1] == '/' || access(str + 5, F_OK | R_OK)) {
+	if (req[req.size() - 1] == '/' || access(req.c_str() + 5, F_OK | R_OK)) {
 		std::cout << "Sending 403\n";
 		send_403(fd);
 		return (false);
 	}
-	std::ifstream file(str + 5);
+	std::ifstream file(req.c_str() + 5);
 	if (!file.is_open()) {
 		std::cout << "Sending 404\n";
 		send_404(fd);
 		return (false);
 	} else {
-		std::cout << "Sending " << (str + 5) << "\n";
+		std::cout << "Sending " << (req.c_str() + 5) << "\n";
 
 		std::ostringstream f;
 		f << file.rdbuf();
 
 		std::string sf = f.str();
 
-		char *c = strrchr(str + 5, '.');
+		int ip = req.find_last_of('.');
 
 		std::ostringstream ss;
 		ss << "HTTP/1.1 200 OK\n";
 		ss << "Server: Webserv\n";
-		ss << "Content-Type: text/" << c + 1 << "\n";
+		ss << "Content-Type: text/" << req.c_str() + ip + 1 << "\n";
 		ss << "Connection: keep-alive\n";
 		ss << "Content-Length: " << sf.size() << "\n";
 		ss << "\n";
@@ -165,9 +158,9 @@ bool Server::handle_request(char *str, int fd)
 		//ss << file.rdbuf();
 
 		std::string s = ss.str();
-		if (s.size() < 8192)
+		if (s.size() < 256)
 			std::cout << s << "\n";
-		int e = send(fd, s.c_str(), s.size(), 0);
+		int e = msg::send(fd, s);
 		std::cout << "Sent " << e << "b/" << s.size() << "b on fd " << fd << "\n";
 	}
 	return (false);

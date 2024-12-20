@@ -50,6 +50,11 @@ bool Socket::is_enabled() const
 }
 
 int Socket::set_flag(int flag, bool enabled) {
+	return (set_flag(fd, flag, enabled));
+}
+
+int Socket::set_flag(int fd, int flag, bool enabled)
+{
 	int flags = fcntl(fd, F_GETFL);
-	return (fcntl(fd, F_SETFL, enabled ? (flags & ~flag) : (flags | flag)));
+	return (fcntl(fd, F_SETFL, enabled ? (flags | flag) : (flags & ~flag)));
 }

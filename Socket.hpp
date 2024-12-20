@@ -17,9 +17,10 @@ public:
 
 	Socket&	operator=(const Socket &cpy) = delete;
 
-	int		get_fd() const;
-	bool	is_enabled() const;
-	int		set_flag(int flag, bool enabled);
+	int			get_fd() const;
+	bool		is_enabled() const;
+	int			set_flag(int flag, bool enabled);
+	static int	set_flag(int fd, int flag, bool enabled);
 
 private:
 	bool	enabled;
