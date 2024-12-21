@@ -28,7 +28,7 @@ private:
 	CompactList<pollfd>	fds;
 
 	bool	handle_event(pollfd& fd);
-	bool	handle_request(std::string& req, int fd);
+	void	handle_request(std::string& req, int fd);
 };
 
 #endif

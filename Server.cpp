@@ -72,7 +72,7 @@ bool Server::handle_event(pollfd &fd)
 
 			std::string request;
 			int r = msg::receive(fd.fd, request);
-			running = !handle_request(request, fd.fd);
+			handle_request(request, fd.fd);
 			std::cout << "\tclosed(" << fd.fd << ")\n";
 			close(fd.fd);
 			fd.fd = -1;
@@ -111,17 +111,18 @@ void	send_404(int fd) {
 	msg::send(fd, r404);
 }
 
-bool Server::handle_request(std::string& req, int fd)
+void Server::handle_request(std::string& req, int fd)
 {
-	std::cout << "\n\tHandling request:\n";
+	std::cout << "\n\tHandling request:\n[" << req << "]\n";
 
 	if (!req.compare("STOP")) {
 		std::cout << "STOP request\n";
-		return (true);
+		running = false;
+		return ;
 	}
 	if (!req.compare("GET ")) {
-		std::cout << "GET resquest\n";	
-		return (false);
+		std::cout << "GET resquest\n";
+		return ;
 	}
 
 	req = req.substr(0, req.find(' ', 5));
@@ -129,13 +130,12 @@ bool Server::handle_request(std::string& req, int fd)
 	if (req[req.size() - 1] == '/' || access(req.c_str() + 5, F_OK | R_OK)) {
 		std::cout << "Sending 403\n";
 		send_403(fd);
-		return (false);
+		return ;
 	}
 	std::ifstream file(req.c_str() + 5);
 	if (!file.is_open()) {
 		std::cout << "Sending 404\n";
 		send_404(fd);
-		return (false);
 	} else {
 		std::cout << "Sending " << (req.c_str() + 5) << "\n";
 
@@ -163,5 +163,4 @@ bool Server::handle_request(std::string& req, int fd)
 		int e = msg::send(fd, s);
 		std::cout << "Sent " << e << "b/" << s.size() << "b on fd " << fd << "\n";
 	}
-	return (false);
 }
