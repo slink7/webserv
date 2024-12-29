@@ -34,7 +34,28 @@ int msg::receive(int fd, std::string &out)
 	int		k;
 
 	do {
-		k = recv(fd, buffer, RECV_SIZE - 1, 0);
+		k = ::recv(fd, buffer, RECV_SIZE - 1, 0);
+		if (k < 0) {
+			std::cerr << "recv() failed: " << strerror(errno) << "\n";
+			break ;
+		}
+		buffer[k] = 0;
+		len += k;
+		stream << buffer;
+	} while (k >= RECV_SIZE - 1);
+	out = stream.str();
+	return (k);
+}
+
+int msg::read(int fd, std::string &out)
+{
+	std::ostringstream stream;
+	char	buffer[RECV_SIZE];
+	int		len = 0;
+	int		k;
+
+	do {
+		k = ::read(fd, buffer, RECV_SIZE - 1);
 		if (k < 0) {
 			std::cerr << "recv() failed: " << strerror(errno) << "\n";
 			break ;

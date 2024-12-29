@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 
 namespace msg {
 	const int RECV_SIZE = 17;
@@ -16,6 +17,8 @@ namespace msg {
 	int	send(int fd, const char *msg);
 
 	int	receive(int fd, std::string& out);
+
+	int	read(int fd, std::string& out);
 }
 
 #endif

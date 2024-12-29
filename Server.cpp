@@ -14,7 +14,7 @@ Server::Server(int port) :
 	fds.add({0, POLLIN, 0});
 	fds.add({socket.get_fd(), POLLIN, 0});
 
-	cgi.addCGI(".php", "/usr/bin/php-cgi");
+	cgi.add(".php", "/usr/bin/php-cgi");
 }
 
 void Server::start() {
