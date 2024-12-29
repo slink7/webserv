@@ -13,6 +13,8 @@ Server::Server(int port) :
 
 	fds.add({0, POLLIN, 0});
 	fds.add({socket.get_fd(), POLLIN, 0});
+
+	cgi.addCGI(".php", "/usr/bin/php-cgi");
 }
 
 void Server::start() {
@@ -132,6 +134,12 @@ void Server::handle_request(std::string& req, int fd)
 		send_403(fd);
 		return ;
 	}
+
+	if (cgi.handle(req.substr(5))) {
+		std::cout << "\tCGI SUPPORTED\t\n";
+		return ;
+	}
+
 	std::ifstream file(req.c_str() + 5);
 	if (!file.is_open()) {
 		std::cout << "Sending 404\n";
