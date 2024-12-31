@@ -1,6 +1,7 @@
 #ifndef MESSAGE_HPP
 #define MESSAGE_HPP
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <map>
@@ -14,6 +15,7 @@ namespace HTTP {
 		Message&	operator=(const Message& other);
 
 	public:
+
 		std::string	GetVersion() const;
 		const std::string&	GetStartLine() const;
 
@@ -22,6 +24,16 @@ namespace HTTP {
 		const std::map<std::string, std::string>&	GetHeaderMap() const;
 
 		const std::string&	GetBody() const;
+
+		enum	PrintFlag {
+			START_LINE = 1 << 0,
+			HEADERS = 1 << 1,
+			BODY = 1 << 2,
+			NO_BODY = START_LINE | HEADERS,
+			ALL = START_LINE | HEADERS | BODY
+		};
+
+		void	Print(PrintFlag flags = START_LINE) const;
 
 	protected:
 		std::string	start_line;

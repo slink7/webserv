@@ -75,13 +75,7 @@ bool Server::handle_event(pollfd &fd)
 			HTTP::Request req;
 			req.Receive(fd.fd);
 
-			std::cout << "[" << req.GetStartLine() << "]\n";
-			std::cout << "Method: " << req.GetMethod() << ", for " << req.GetTarget() << ".\n";
-			std::cout << "VERSION=" << req.GetVersion() << ".\n";
-			const std::map<std::string, std::string>& e = req.GetHeaderMap();
-			for (auto it : e) {
-				std::cout << "[" << it.first << "]=[" << it.second << "]\n";
-			}
+			req.Print(HTTP::Request::NO_BODY);
 
 			std::cout << "\tclosed(" << fd.fd << ")\n";
 			close(fd.fd);

@@ -36,3 +36,15 @@ const std::map<std::string, std::string> &HTTP::Message::GetHeaderMap() const {
 const std::string &HTTP::Message::GetBody() const {
 	return (body);
 }
+
+void HTTP::Message::Print(PrintFlag flags) const {
+	if (flags & START_LINE)
+		std::cout << "Start_line:\"" << GetStartLine() << "\"\n";
+	if (flags & HEADERS) {
+		std::cout << "Headers:\n";
+		for (auto it : headers)
+			std::cout << "\t\"" << it.first << "\" \t= \"" << it.second << "\"\n";
+	}
+	if (flags & BODY)
+		std::cout << "Body:\"\n" << body << "\n\"\n";
+}
