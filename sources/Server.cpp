@@ -11,10 +11,21 @@ Server::Server(int port) :
 
 	socket.set_flag(O_NONBLOCK, false);
 
-	fds.add({0, POLLIN, 0});
-	fds.add({socket.get_fd(), POLLIN, 0});
+	struct pollfd temp;
+	temp.fd = 0;
+	temp.events = POLLIN;
+	temp.revents = 0;
+	fds.add(temp);
+	temp.fd = socket.get_fd();
+	temp.events = POLLIN;
+	temp.revents = 0;
+	fds.add(temp);
 
 	// cgi.add(".php", "/usr/bin/php-cgi");
+}
+
+bool pred(const pollfd& poll) {
+	return (poll.fd == -1);
 }
 
 void Server::start() {
@@ -32,9 +43,7 @@ void Server::start() {
 				count--;
 		}
 
-		fds.compact([](const pollfd& poll) -> bool {
-			return (poll.fd == -1);
-		});
+		fds.compact(pred);
 	}
 	for (int k = 0; k < fds.get_size(); k++) {
 		std::cout << "\tclosed(" << fds.at(k).fd << ")\n";
@@ -44,7 +53,8 @@ void Server::start() {
 }
 
 std::string getMimeType(const std::string& file) {
-    static const std::map<std::string, std::string> mimeTypes = {
+	static const int type_count = 9;
+    static const std::string mimeTypes[type_count][2] = {
         {".html", "text/html"},
         {".css", "text/css"},
         {".js", "application/javascript"},
@@ -56,9 +66,10 @@ std::string getMimeType(const std::string& file) {
         {".pdf", "application/pdf"}
     };
 
-
-    auto it = mimeTypes.find(file.substr(file.find_last_of('.')));
-    return (it != mimeTypes.end()) ? it->second : "application/octet-stream";
+	for (int k = 0; k < type_count; k++)
+		if (!mimeTypes[k][0].compare(file.substr(file.find_last_of('.'))))
+			return (mimeTypes[k][1]);
+    return ("application/octet-stream");
 }
 
 bool Server::handle_event(pollfd &fd)
@@ -82,7 +93,11 @@ bool Server::handle_event(pollfd &fd)
 		}
 		std::cout << "\topenned(" << client_fd << ")\n";
 		// Socket::set_flag(client_fd, O_NONBLOCK, true);
-		fds.add({client_fd, POLLIN, 0});
+		struct pollfd temp;
+		temp.fd = client_fd;
+		temp.events = POLLIN;
+		temp.revents = 0;
+		fds.add(temp);
 
 	} else {
 
@@ -101,7 +116,7 @@ bool Server::handle_event(pollfd &fd)
 			rep.SetStatus("200 OK");
 			rep.SetBodyFromFile(req.GetTarget());
 			rep.AddHeader("Content-Type", getMimeType(req.GetTarget()));
-			rep.AddHeader("Content-Length", std::to_string(rep.GetBody().size()));
+			rep.AddHeader("Content-Length", FT::itoa(rep.GetBody().size()));
 			std::cout << "\n\tRESPONSE\n";
 			rep.Print(HTTP::Request::NO_BODY);
 			rep.Send(fd.fd);
@@ -117,5 +132,6 @@ bool Server::handle_event(pollfd &fd)
 
 void Server::handle_request(std::string& req, int fd)
 {
-	
+	(void) req;
+	(void) fd;
 }

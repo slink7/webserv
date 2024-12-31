@@ -7,15 +7,19 @@
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
+#include <cerrno>
 
 class Socket {
+
+private:
+	Socket();
+	Socket(const Socket &cpy);
+
+	Socket&	operator=(const Socket &cpy);
+
 public:
-	Socket() = delete;
-	Socket(const Socket &cpy) = delete;
 	Socket(unsigned short port, int queue);
 	~Socket();
-
-	Socket&	operator=(const Socket &cpy) = delete;
 
 	int			get_fd() const;
 	bool		is_enabled() const;

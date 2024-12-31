@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
+#include <cerrno>
 
 namespace FT {
 	const int RECV_SIZE = 17;
@@ -19,6 +20,8 @@ namespace FT {
 	int	receive(int fd, std::string& out);
 
 	int	read(int fd, std::string& out);
+
+	std::string itoa(int n);
 }
 
 #endif

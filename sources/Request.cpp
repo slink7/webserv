@@ -20,14 +20,14 @@ void HTTP::Request::Receive(int fd) {
 	int index = 0;
 
 	{
-		int end = raw.find_first_of('\n');
+		std::size_t end = raw.find_first_of('\n');
 		if (end == std::string::npos)
 			return ;
 		start_line = raw.substr(0, end);
 		index = end + 1;
 	}
 	
-	int body_start = raw.find("\n\n", index) + 2;
+	std::size_t body_start = raw.find("\n\n", index) + 2;
 	if (body_start == std::string::npos) {
 		std::cerr << "Error: Missing empty line in request\n";
 		return ;
@@ -35,9 +35,9 @@ void HTTP::Request::Receive(int fd) {
 
 	{
 		while (true) {
-			int name_end = raw.find_first_of(':', index);
-			int value_begin = raw.find_first_not_of(' ', name_end + 1);
-			int newline = raw.find_first_of('\n', index);
+			std::size_t name_end = raw.find_first_of(':', index);
+			std::size_t value_begin = raw.find_first_not_of(' ', name_end + 1);
+			std::size_t newline = raw.find_first_of('\n', index);
 			if (newline + 2 >= body_start)
 				break ;
 			if (newline <= name_end)

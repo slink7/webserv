@@ -67,3 +67,10 @@ int FT::read(int fd, std::string &out)
 	out = stream.str();
 	return (k);
 }
+
+std::string FT::itoa(int n)
+{
+	std::ostringstream temp;
+	temp << n;
+	return (temp.str());
+}

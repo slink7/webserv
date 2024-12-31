@@ -42,8 +42,8 @@ void HTTP::Message::Print(PrintFlag flags) const {
 		std::cout << "Start_line:\"" << GetStartLine() << "\"\n";
 	if (flags & HEADERS) {
 		std::cout << "Headers:\n";
-		for (auto it : headers)
-			std::cout << "\t\"" << it.first << "\" \t= \"" << it.second << "\"\n";
+		for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
+			std::cout << "\t\"" << it->first << "\" \t= \"" << it->second << "\"\n";
 	}
 	if (flags & BODY)
 		std::cout << "Body:\"\n" << body << "\n\"\n";

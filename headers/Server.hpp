@@ -15,12 +15,14 @@
 
 class Server {
 
-public:
-	Server() = delete;
-	Server(int port);
-	Server(const Server& cpy) = delete;
+private:
+	Server();
+	Server(const Server& cpy);
 
-	Server&	operator=(const Server& cpy) = delete;
+	Server&	operator=(const Server& cpy);
+
+public:
+	Server(int port);
 
 	void	start();
 

@@ -3,7 +3,7 @@ template <typename T>
 class CompactList {
 	static const unsigned int	max_size = 128;
 	T							fds[max_size];
-	int							size = 0;
+	unsigned int				size;
 
 public:
 	T&	at(int k) {
@@ -20,7 +20,7 @@ public:
 	int	compact(bool (*predicat)(const T&)) {
 		int rcount = 0;
 		
-		for (int k = 0; k < size; k++) {
+		for (unsigned int k = 0; k < size; k++) {
 			if (predicat(fds[k]))
 				rcount++;
 			else
