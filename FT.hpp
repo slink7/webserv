@@ -1,5 +1,5 @@
-#ifndef MESSENGER_HPP
-#define MESSENGER_HPP
+#ifndef FT_HPP
+#define FT_HPP
 
 #include <string>
 #include <string.h>
@@ -8,7 +8,7 @@
 #include <sstream>
 #include <unistd.h>
 
-namespace msg {
+namespace FT {
 	const int RECV_SIZE = 17;
 
 	int	send(int fd, std::string& msg, int len);

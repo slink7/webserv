@@ -1,11 +1,11 @@
-#include "Messenger.hpp"
+#include "FT.hpp"
 
-int msg::send(int fd, std::string &msg, int len)
+int FT::send(int fd, std::string &msg, int len)
 {
 	return (send(fd, msg.c_str(), len));
 }
 
-int msg::send(int fd, const char *msg, int len)
+int FT::send(int fd, const char *msg, int len)
 {
 	int	out;
 
@@ -16,17 +16,17 @@ int msg::send(int fd, const char *msg, int len)
 	return (out);
 }
 
-int msg::send(int fd, std::string &msg)
+int FT::send(int fd, std::string &msg)
 {
 	return (send(fd, msg.c_str(), msg.size()));
 }
 
-int msg::send(int fd, const char *msg)
+int FT::send(int fd, const char *msg)
 {
 	return (send(fd, msg, strlen(msg)));
 }
 
-int msg::receive(int fd, std::string &out)
+int FT::receive(int fd, std::string &out)
 {
 	std::ostringstream stream;
 	char	buffer[RECV_SIZE];
@@ -47,7 +47,7 @@ int msg::receive(int fd, std::string &out)
 	return (k);
 }
 
-int msg::read(int fd, std::string &out)
+int FT::read(int fd, std::string &out)
 {
 	std::ostringstream stream;
 	char	buffer[RECV_SIZE];
