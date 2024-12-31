@@ -1,6 +1,6 @@
 #include "Message.hpp"
 
-const std::string &HTTP::Message::GetVersion() const {
+std::string HTTP::Message::GetVersion() const {
 	int	begin = start_line.find("HTTP/");
 	int end = start_line.find_first_of(" \n\t\0", begin);
 	return (start_line.substr(begin, end - begin));

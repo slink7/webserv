@@ -14,7 +14,7 @@ namespace HTTP {
 
 		Message&	operator=(const Message& other) = delete;
 
-		const std::string&	GetVersion() const;
+		std::string	GetVersion() const;
 		const std::string&	GetStartLine() const;
 
 		void	AddHeader(const std::string& name, const std::string& value);
