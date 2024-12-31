@@ -9,14 +9,11 @@ namespace HTTP {
 	class Message {
 	
 	private:
-		Message();
 		Message(const Message& other);
 
 		Message&	operator=(const Message& other);
 
 	public:
-		
-
 		std::string	GetVersion() const;
 		const std::string&	GetStartLine() const;
 
@@ -30,6 +27,8 @@ namespace HTTP {
 		std::string	start_line;
 		std::map<std::string, std::string>	headers;
 		std::string	body;
+
+		Message();
 	};
 };
 

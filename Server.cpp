@@ -14,7 +14,7 @@ Server::Server(int port) :
 	fds.add({0, POLLIN, 0});
 	fds.add({socket.get_fd(), POLLIN, 0});
 
-	cgi.add(".php", "/usr/bin/php-cgi");
+	// cgi.add(".php", "/usr/bin/php-cgi");
 }
 
 void Server::start() {
@@ -72,9 +72,17 @@ bool Server::handle_event(pollfd &fd)
 			
 			std::cout << "\n\tReceiving from " << fd.fd << "\n";
 
-			std::string request;
-			int r = msg::receive(fd.fd, request);
-			handle_request(request, fd.fd);
+			HTTP::Request req;
+			req.Receive(fd.fd);
+
+			std::cout << "[" << req.GetStartLine() << "]\n";
+			std::cout << "Method: " << req.GetMethod() << ", for " << req.GetTarget() << ".\n";
+			std::cout << "VERSION=" << req.GetVersion() << ".\n";
+			const std::map<std::string, std::string>& e = req.GetHeaderMap();
+			for (auto it : e) {
+				std::cout << "[" << it.first << "]=[" << it.second << "]\n";
+			}
+
 			std::cout << "\tclosed(" << fd.fd << ")\n";
 			close(fd.fd);
 			fd.fd = -1;
@@ -96,6 +104,7 @@ void	send_403(int fd) {
 		"<head><title>403</title></head>\n"
 		"<body><h1>403 Forbidden...</h1></body>\n"
 		"</html>\n";
+	FT::send(fd, r403);
 }
 
 void	send_404(int fd) {
@@ -110,13 +119,11 @@ void	send_404(int fd) {
 		"<head><title>404</title></head>\n"
 		"<body><h1>404 Not Found...</h1></body>\n"
 		"</html>\n";
-	msg::send(fd, r404);
+	FT::send(fd, r404);
 }
 
 void Server::handle_request(std::string& req, int fd)
 {
-	std::cout << "\n\tHandling request:\n[" << req << "]\n";
-
 	if (!req.compare("STOP")) {
 		std::cout << "STOP request\n";
 		running = false;
@@ -135,10 +142,10 @@ void Server::handle_request(std::string& req, int fd)
 		return ;
 	}
 
-	if (cgi.handle(req.substr(5))) {
-		std::cout << "\tCGI SUPPORTED\t\n";
-		return ;
-	}
+	// if (cgi.handle(req.substr(5))) {
+	// 	std::cout << "\tCGI SUPPORTED\t\n";
+	// 	return ;
+	// }
 
 	std::ifstream file(req.c_str() + 5);
 	if (!file.is_open()) {
@@ -168,7 +175,7 @@ void Server::handle_request(std::string& req, int fd)
 		std::string s = ss.str();
 		if (s.size() < 256)
 			std::cout << s << "\n";
-		int e = msg::send(fd, s);
+		int e = FT::send(fd, s);
 		std::cout << "Sent " << e << "b/" << s.size() << "b on fd " << fd << "\n";
 	}
 }

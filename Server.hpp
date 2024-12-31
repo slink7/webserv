@@ -7,8 +7,8 @@
 
 #include "Socket.hpp"
 #include "CompactList.tpp"
-#include "Messenger.hpp"
-#include "CGIHandler.hpp"
+#include "FT.hpp"
+#include "Request.hpp"
 
 #define RECV_SIZE 1024
 
@@ -27,7 +27,7 @@ private:
 	bool				running;
 	Socket				socket;
 	CompactList<pollfd>	fds;
-	CGIHandler			cgi;
+	// CGIHandler			cgi;
 
 	bool	handle_event(pollfd& fd);
 	void	handle_request(std::string& req, int fd);
