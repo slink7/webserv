@@ -8,11 +8,14 @@
 namespace HTTP {
 	class Message {
 	
-	public:
-		Message() = delete;
-		Message(const Message& other) = delete;
+	private:
+		Message();
+		Message(const Message& other);
 
-		Message&	operator=(const Message& other) = delete;
+		Message&	operator=(const Message& other);
+
+	public:
+		
 
 		std::string	GetVersion() const;
 		const std::string&	GetStartLine() const;
