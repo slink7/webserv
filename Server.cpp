@@ -43,6 +43,24 @@ void Server::start() {
 	}
 }
 
+std::string getMimeType(const std::string& file) {
+    static const std::map<std::string, std::string> mimeTypes = {
+        {".html", "text/html"},
+        {".css", "text/css"},
+        {".js", "application/javascript"},
+        {".png", "image/png"},
+        {".jpg", "image/jpeg"},
+        {".gif", "image/gif"},
+        {".json", "application/json"},
+        {".txt", "text/plain"},
+        {".pdf", "application/pdf"}
+    };
+
+
+    auto it = mimeTypes.find(file.substr(file.find_last_of('.')));
+    return (it != mimeTypes.end()) ? it->second : "application/octet-stream";
+}
+
 bool Server::handle_event(pollfd &fd)
 {
 	if (!fd.revents)
@@ -75,7 +93,18 @@ bool Server::handle_event(pollfd &fd)
 			HTTP::Request req;
 			req.Receive(fd.fd);
 
+			std::cout << "\n\tREQUEST\n";
 			req.Print(HTTP::Request::NO_BODY);
+
+			HTTP::Response rep;
+
+			rep.SetStatus("200 OK");
+			rep.SetBodyFromFile(req.GetTarget());
+			rep.AddHeader("Content-Type", getMimeType(req.GetTarget()));
+			rep.AddHeader("Content-Length", std::to_string(rep.GetBody().size()));
+			std::cout << "\n\tRESPONSE\n";
+			rep.Print(HTTP::Request::NO_BODY);
+			rep.Send(fd.fd);
 
 			std::cout << "\tclosed(" << fd.fd << ")\n";
 			close(fd.fd);
@@ -86,90 +115,7 @@ bool Server::handle_event(pollfd &fd)
 	return false;
 }
 
-void	send_403(int fd) {
-	std::string r403 =
-		"HTTP/1.1 403 Forbidden\n"
-		"Server: Webserv\n"
-		"Content-Type: text/html\n"
-		"Content-Length: 87\n"
-		"Connection: keep-alive\n"
-		"\n"
-		"<html>\n"
-		"<head><title>403</title></head>\n"
-		"<body><h1>403 Forbidden...</h1></body>\n"
-		"</html>\n";
-	FT::send(fd, r403);
-}
-
-void	send_404(int fd) {
-	std::string r404 = 
-		"HTTP/1.1 404 Not Found\n"
-		"Server: Webserv\n"
-		"Content-Type: text/html\n"
-		"Content-Length: 87\n"
-		"Connection: keep-alive\n"
-		"\n"
-		"<html>\n"
-		"<head><title>404</title></head>\n"
-		"<body><h1>404 Not Found...</h1></body>\n"
-		"</html>\n";
-	FT::send(fd, r404);
-}
-
 void Server::handle_request(std::string& req, int fd)
 {
-	if (!req.compare("STOP")) {
-		std::cout << "STOP request\n";
-		running = false;
-		return ;
-	}
-	if (!req.compare("GET ")) {
-		std::cout << "GET resquest\n";
-		return ;
-	}
-
-	req = req.substr(0, req.find(' ', 5));
-
-	if (req[req.size() - 1] == '/' || access(req.c_str() + 5, F_OK | R_OK)) {
-		std::cout << "Sending 403\n";
-		send_403(fd);
-		return ;
-	}
-
-	// if (cgi.handle(req.substr(5))) {
-	// 	std::cout << "\tCGI SUPPORTED\t\n";
-	// 	return ;
-	// }
-
-	std::ifstream file(req.c_str() + 5);
-	if (!file.is_open()) {
-		std::cout << "Sending 404\n";
-		send_404(fd);
-	} else {
-		std::cout << "Sending " << (req.c_str() + 5) << "\n";
-
-		std::ostringstream f;
-		f << file.rdbuf();
-
-		std::string sf = f.str();
-
-		int ip = req.find_last_of('.');
-
-		std::ostringstream ss;
-		ss << "HTTP/1.1 200 OK\n";
-		ss << "Server: Webserv\n";
-		ss << "Content-Type: text/" << req.c_str() + ip + 1 << "\n";
-		ss << "Connection: keep-alive\n";
-		ss << "Content-Length: " << sf.size() << "\n";
-		ss << "\n";
-
-		ss << sf;
-		//ss << file.rdbuf();
-
-		std::string s = ss.str();
-		if (s.size() < 256)
-			std::cout << s << "\n";
-		int e = FT::send(fd, s);
-		std::cout << "Sent " << e << "b/" << s.size() << "b on fd " << fd << "\n";
-	}
+	
 }

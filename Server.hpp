@@ -9,6 +9,7 @@
 #include "CompactList.tpp"
 #include "FT.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 
 #define RECV_SIZE 1024
 
