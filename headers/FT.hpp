@@ -8,6 +8,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <cerrno>
+#include <sys/stat.h>
 
 namespace FT {
 	const int RECV_SIZE = 17;
@@ -22,6 +23,9 @@ namespace FT {
 	int	read(int fd, std::string& out);
 
 	std::string itoa(int n);
+
+	bool	is_directory(const std::string& path);
+	bool	is_file(const std::string& path);
 }
 
 #endif

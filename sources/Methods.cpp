@@ -9,8 +9,8 @@ HTTP::Method HTTP::EvaluateMethod(const std::string &str) {
 	};
 
 	for (int k = 0; k < method_count; k++)
-		if (str.compare(0, methods[k].size(), methods[k]))
+		if (!str.compare(0, methods[k].size(), methods[k]))
 			return Method(k);
 
-	return (UNDEFINED);
+	return (INVALID);
 }

@@ -12,17 +12,16 @@ void HTTP::Response::SetBodyRaw(const std::string &body) {
 	this->body = body;
 }
 
-void HTTP::Response::SetBodyFromFile(const std::string &path) {
-	std::ifstream file;
-
-	file.open(("." + path).c_str());
+bool HTTP::Response::SetBodyFromFile(const std::string &path) {
+	std::ifstream file(path.c_str());
 
 	if (!file.is_open()) {
-		std::cout << "File couldn't be oppenned\n";
-		return ;
+		std::cout << "File \"" << path << "\" couldn't be oppenned\n";
+		return (false);
 	}
 
 	body.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+	return (true);
 }
 
 void HTTP::Response::Send(int fd) const {

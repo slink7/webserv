@@ -20,7 +20,7 @@ namespace HTTP {
 
 		void	SetStatus(const std::string& status);
 		void	SetBodyRaw(const std::string& body);
-		void	SetBodyFromFile(const std::string& path);
+		bool	SetBodyFromFile(const std::string& path);
 		void	Send(int fd) const;
 	};
 

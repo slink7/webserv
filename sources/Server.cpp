@@ -45,8 +45,9 @@ void Server::start() {
 
 		fds.compact(pred);
 	}
+	std::cout << "Closing " << fds.get_size() << " fds\n";
 	for (int k = 0; k < fds.get_size(); k++) {
-		std::cout << "\tclosed(" << fds.at(k).fd << ")\n";
+		std::cout << "\tclosed(" << fds.at(k).fd << ") B \n";
 		close(fds.at(k).fd);
 		fds.at(k).fd = -1;
 	}
@@ -109,19 +110,41 @@ bool Server::handle_event(pollfd &fd)
 			req.Receive(fd.fd);
 
 			std::cout << "\n\tREQUEST\n";
+			std::cout << "Method:" << req.GetMethod() << " \n";
 			req.Print(HTTP::Request::NO_BODY);
 
 			HTTP::Response rep;
 
-			rep.SetStatus("200 OK");
-			rep.SetBodyFromFile(req.GetTarget());
-			rep.AddHeader("Content-Type", getMimeType(req.GetTarget()));
+			if (req.GetMethod() == HTTP::UNDEFINED) {
+				rep.SetStatus("500 Internal Server Error");
+				rep.SetBodyFromFile("site/errors/500.html");
+				rep.AddHeader("Content-Type", getMimeType("site/errors/500.html"));
+			} else if (req.GetMethod() == HTTP::INVALID) {
+				rep.SetStatus("501 Not Implemented");
+				rep.SetBodyFromFile("site/errors/501.html");
+				rep.AddHeader("Content-Type", getMimeType("site/errors/501.html"));
+			} else if (FT::is_directory(req.GetTarget().substr(1))) {
+				rep.SetStatus("403 Forbidden");
+				rep.SetBodyFromFile("site/errors/403.html");
+				rep.AddHeader("Content-Type", getMimeType("site/errors/403.html"));
+						
+			} else if (rep.SetBodyFromFile(req.GetTarget().substr(1))) {
+				rep.SetStatus("200 OK");
+				rep.AddHeader("Content-Type", getMimeType(req.GetTarget()));
+
+			} else {
+				rep.SetStatus("404 Not found");
+				if (!rep.SetBodyFromFile("site/errors/404.html"))
+					std::cerr << "Bruh 404 \n";
+				rep.AddHeader("Content-Type", getMimeType("site/errors/404.html"));
+			}
 			rep.AddHeader("Content-Length", FT::itoa(rep.GetBody().size()));
 			std::cout << "\n\tRESPONSE\n";
 			rep.Print(HTTP::Request::NO_BODY);
 			rep.Send(fd.fd);
+			
 
-			std::cout << "\tclosed(" << fd.fd << ")\n";
+			std::cout << "\tclosed(" << fd.fd << ") A \n";
 			close(fd.fd);
 			fd.fd = -1;
 

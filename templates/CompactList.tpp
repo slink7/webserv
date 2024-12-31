@@ -6,6 +6,11 @@ class CompactList {
 	unsigned int				size;
 
 public:
+
+	CompactList() :
+		size(0)
+	{}
+
 	T&	at(int k) {
 		return (fds[k]);
 	}
