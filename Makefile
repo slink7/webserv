@@ -21,7 +21,8 @@ LFLAGS =
 
 INCLUDES =\
 	-I./\
-	-Iheaders/
+	-Iheaders/\
+	-Itemplates
 
 OBJ_DIR = obj
 
