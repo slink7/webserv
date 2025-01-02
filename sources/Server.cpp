@@ -53,26 +53,6 @@ void Server::start() {
 	}
 }
 
-std::string getMimeType(const std::string& file) {
-	static const int type_count = 9;
-    static const std::string mimeTypes[type_count][2] = {
-        {".html", "text/html"},
-        {".css", "text/css"},
-        {".js", "application/javascript"},
-        {".png", "image/png"},
-        {".jpg", "image/jpeg"},
-        {".gif", "image/gif"},
-        {".json", "application/json"},
-        {".txt", "text/plain"},
-        {".pdf", "application/pdf"}
-    };
-
-	for (int k = 0; k < type_count; k++)
-		if (!mimeTypes[k][0].compare(file.substr(file.find_last_of('.'))))
-			return (mimeTypes[k][1]);
-    return ("application/octet-stream");
-}
-
 bool Server::handle_event(pollfd &fd)
 {
 	if (!fd.revents)
@@ -118,25 +98,25 @@ bool Server::handle_event(pollfd &fd)
 			if (req.GetMethod() == HTTP::UNDEFINED) {
 				rep.SetStatus("500 Internal Server Error");
 				rep.SetBodyFromFile("site/errors/500.html");
-				rep.AddHeader("Content-Type", getMimeType("site/errors/500.html"));
+				rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/500.html"));
 			} else if (req.GetMethod() == HTTP::INVALID) {
 				rep.SetStatus("501 Not Implemented");
 				rep.SetBodyFromFile("site/errors/501.html");
-				rep.AddHeader("Content-Type", getMimeType("site/errors/501.html"));
+				rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/501.html"));
 			} else if (FT::is_directory(req.GetTarget().substr(1))) {
 				rep.SetStatus("403 Forbidden");
 				rep.SetBodyFromFile("site/errors/403.html");
-				rep.AddHeader("Content-Type", getMimeType("site/errors/403.html"));
+				rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/403.html"));
 						
 			} else if (rep.SetBodyFromFile(req.GetTarget().substr(1))) {
 				rep.SetStatus("200 OK");
-				rep.AddHeader("Content-Type", getMimeType(req.GetTarget()));
+				rep.AddHeader("Content-Type", FT::get_mime_type(req.GetTarget()));
 
 			} else {
 				rep.SetStatus("404 Not found");
 				if (!rep.SetBodyFromFile("site/errors/404.html"))
 					std::cerr << "Bruh 404 \n";
-				rep.AddHeader("Content-Type", getMimeType("site/errors/404.html"));
+				rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/404.html"));
 			}
 			rep.AddHeader("Content-Length", FT::itoa(rep.GetBody().size()));
 			std::cout << "\n\tRESPONSE\n";

@@ -85,3 +85,26 @@ bool FT::is_file(const std::string &path) {
 	}
 	return ((out.st_mode & S_IFREG) != 0);
 }
+
+const std::string& FT::get_mime_type(const std::string& file) {
+	static const std::string def = "application/octet-stream";
+	static const int type_count = 9;
+    static const std::string mime_types[type_count][2] = {
+        {".html", "text/html"},
+        {".css", "text/css"},
+        {".js", "application/javascript"},
+        {".png", "image/png"},
+        {".jpg", "image/jpeg"},
+        {".gif", "image/gif"},
+        {".json", "application/json"},
+        {".txt", "text/plain"},
+        {".pdf", "application/pdf"}
+    };
+
+	std::string extension = file.substr(file.find_last_of('.'));
+
+	for (int k = 0; k < type_count; k++)
+		if (!mime_types[k][0].compare(extension))
+			return (mime_types[k][1]);
+    return (def);
+}

@@ -26,6 +26,8 @@ namespace FT {
 
 	bool	is_directory(const std::string& path);
 	bool	is_file(const std::string& path);
+
+	const std::string& get_mime_type(const std::string& file);
 }
 
 #endif
