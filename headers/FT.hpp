@@ -2,6 +2,7 @@
 #define FT_HPP
 
 #include <string>
+#include <cstring>
 #include <string.h>
 #include <sys/socket.h>
 #include <iostream>
@@ -28,6 +29,8 @@ namespace FT {
 	bool	is_file(const std::string& path);
 
 	const std::string& get_mime_type(const std::string& file);
+
+	void	replace(std::string& str, const char *from, const char *to);
 }
 
 #endif

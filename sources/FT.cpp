@@ -108,3 +108,10 @@ const std::string& FT::get_mime_type(const std::string& file) {
 			return (mime_types[k][1]);
     return (def);
 }
+
+void FT::replace(std::string &str, const char *from, const char *to) {
+	std::size_t pos = 0;
+	while ((pos = str.find(from, pos)) != std::string::npos) {
+		str.replace(pos, std::strlen(from), to);
+	}
+}

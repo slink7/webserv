@@ -38,6 +38,7 @@ const std::string &HTTP::Message::GetBody() const {
 }
 
 void HTTP::Message::Print(PrintFlag flags) const {
+	std::cout << "\n\n\tMESSAGE\n\n";
 	if (flags & START_LINE)
 		std::cout << "Start_line:\"" << GetStartLine() << "\"\n";
 	if (flags & HEADERS) {

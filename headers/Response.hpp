@@ -22,6 +22,7 @@ namespace HTTP {
 		void	SetBodyRaw(const std::string& body);
 		bool	SetBodyFromFile(const std::string& path);
 		void	Send(int fd) const;
+		void	ReadCGI(int fd);
 	};
 
 }

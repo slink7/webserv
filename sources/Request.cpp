@@ -10,12 +10,7 @@ void HTTP::Request::Receive(int fd) {
 	std::string raw;
 	FT::receive(fd, raw);
 
-	{
-		size_t pos = 0;
-		while ((pos = raw.find("\r\n", pos)) != std::string::npos) {
-			raw.replace(pos, 2, "\n");
-		}
-	}
+	FT::replace(raw, "\r\n", "\n");
 	
 	int index = 0;
 

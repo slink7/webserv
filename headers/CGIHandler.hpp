@@ -5,15 +5,19 @@
 #include <iostream>
 #include <unistd.h>
 #include <string.h>
+#include <cstring>
+#include <vector>
 #include <sys/wait.h>
 #include <cerrno>
 
+#include "Response.hpp"
+#include "Request.hpp"
 #include "FT.hpp"
 
 class CGIHandler {
 
 public:
-	bool	handle(const std::string& path) const;
+	bool	handle(const HTTP::Request& req, int fd) const;
 	void	add(const std::string& extension, const std::string& executable_path);
 
 private:

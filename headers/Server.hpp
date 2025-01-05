@@ -10,6 +10,7 @@
 #include "FT.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "CGIHandler.hpp"
 
 #define RECV_SIZE 1024
 
@@ -30,10 +31,10 @@ private:
 	bool				running;
 	Socket				socket;
 	CompactList<pollfd>	fds;
-	// CGIHandler			cgi;
+	CGIHandler			cgi;
 
 	bool	handle_event(pollfd& fd);
-	void	handle_request(std::string& req, int fd);
+	void	handle_request(HTTP::Request& req, int fd);
 };
 
 #endif
