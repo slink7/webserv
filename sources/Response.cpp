@@ -41,27 +41,32 @@ void HTTP::Response::Send(int fd) const {
 
 void HTTP::Response::ReadCGI(int fd) {
 	std::string raw;
+	int index = 0;
 
 	FT::read(fd, raw);
 
 	FT::replace(raw, "\r\n", "\n");
 
-	int index = 0;
-	std::size_t nl = raw.find_first_of('\n');
-	if (nl == std::string::npos)
-		return ;
-	std::size_t sc = raw.find_first_of(':');
-	if (nl < sc) {
-		start_line = raw.substr(0, nl);
-		index = nl + 1;
+	//READING START_LINE
+	{
+		std::size_t nl = raw.find_first_of('\n');
+		if (nl == std::string::npos)
+			return ;
+		std::size_t sc = raw.find_first_of(':');
+		if (nl < sc) {
+			start_line = raw.substr(0, nl);
+			index = nl + 1;
+		}
 	}
-
+	
+	//CHECKING FOR EMPTY LINE
 	std::size_t body_start = raw.find("\n\n", index) + 2;
 	if (body_start == std::string::npos) {
 		std::cerr << "Error: Missing empty line in request\n";
 		return ;
 	}
 
+	//READING HEADERS
 	{
 		while (true) {
 			std::size_t name_end = raw.find_first_of(':', index);
@@ -77,5 +82,6 @@ void HTTP::Response::ReadCGI(int fd) {
 		}
 	}
 
+	//READING BODY
 	body = raw.substr(body_start);
 }
