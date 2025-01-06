@@ -72,12 +72,12 @@ private:
 
     static std::string LevelToString(Level level) {
         switch (level) {
-            case INFO: return "\e[0;37mI";
-            case DEBUG: return "\e[0;32mD";
-            case WARNING: return "\e[0;33mW";
-            case ERROR: return "\e[0;31mE";
-			case FUNCTION: return "\e[0;36mF";
-            default: return " ";
+            case INFO: return "\e[0;37mIN";
+            case DEBUG: return "\e[0;32mDE";
+            case WARNING: return "\e[0;33mWA";
+            case ERROR: return "\e[0;31mER";
+			case FUNCTION: return "\e[0;36mFU";
+            default: return "  ";
         }
     }
 
