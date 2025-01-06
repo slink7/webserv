@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <mutex>
 
 
 
@@ -50,13 +49,11 @@ public:
 
     static void SetOutput(std::ostream* output_stream) {
 		Log& instance = Instance();
-        std::lock_guard<std::mutex> lg(instance.mutex_);
         instance.output = output_stream;
     }
 
     template<typename T>
     Log& operator<<(const T& msg) {
-        std::lock_guard<std::mutex> lg(mutex_);
         if ((lock & key) && output) {
             *output << msg;
         }
@@ -64,7 +61,6 @@ public:
     }
 
     Log& operator()(Level level) {
-        std::lock_guard<std::mutex> lg(mutex_);
         key = level;
         return (*this);
     }
@@ -88,7 +84,6 @@ private:
     std::ostream* output;
     Level key;
     Level lock;
-    std::mutex mutex_;
 	static int count;
 };
 
