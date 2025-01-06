@@ -11,6 +11,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "CGIHandler.hpp"
+#include "Log.hpp"
 
 #define RECV_SIZE 1024
 

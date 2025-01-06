@@ -9,6 +9,8 @@
 #include <string.h>
 #include <cerrno>
 
+#include "Log.hpp"
+
 class Socket {
 
 private:

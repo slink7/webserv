@@ -33,7 +33,7 @@ void Server::start() {
 
 		int	count = poll(fds.get_data(), fds.get_size(), -1);
 		if (count < 0) {
-			std::cout << "poll() failed: " << strerror(errno) << "\n";
+			Log::out(Log::FUNCTION) << "poll() failed: " << strerror(errno) << "\n";
 			running = false;
 			break ;
 		}
@@ -45,9 +45,9 @@ void Server::start() {
 
 		fds.compact(pred);
 	}
-	std::cout << "Closing " << fds.get_size() << " fds\n";
+	Log::out(Log::INFO) << "Closing " << fds.get_size() << " fds\n";
 	for (int k = 0; k < fds.get_size(); k++) {
-		std::cout << "\tclosed(" << fds.at(k).fd << ") B \n";
+		Log::out(Log::DEBUG) << "\tclosed(" << fds.at(k).fd << ") B \n";
 		close(fds.at(k).fd);
 		fds.at(k).fd = -1;
 	}
@@ -59,7 +59,7 @@ bool Server::handle_event(pollfd &fd)
 		return (false);
 
 	if (fd.fd == 0) {
-		std::cout << "STDOUT\n";
+		Log::out(Log::INFO) << "STDOUT\n";
 		running = false;
 	}
 
@@ -68,11 +68,11 @@ bool Server::handle_event(pollfd &fd)
 		int client_fd = accept(fd.fd, 0, 0);
 		if (client_fd < 0) {
 			if (errno != EWOULDBLOCK) {
-				std::cerr << "accept() failed: " << strerror(errno) << "\n";
+				Log::out(Log::FUNCTION) << "accept() failed: " << strerror(errno) << "\n";
 				running = false;
 			}
 		}
-		std::cout << "\topenned(" << client_fd << ")\n";
+		Log::out(Log::DEBUG) << "\topenned(" << client_fd << ")\n";
 		// Socket::set_flag(client_fd, O_NONBLOCK, true);
 		struct pollfd temp;
 		temp.fd = client_fd;
@@ -84,7 +84,7 @@ bool Server::handle_event(pollfd &fd)
 
 		if (fd.revents == POLLIN) {
 			
-			std::cout << "\n\tReceiving from " << fd.fd << "\n";
+			Log::out(Log::INFO) << "\tReceiving from " << fd.fd << "\n";
 
 			HTTP::Request req;
 			req.Receive(fd.fd);
@@ -92,11 +92,11 @@ bool Server::handle_event(pollfd &fd)
 			req.Print(HTTP::Request::NO_BODY);
 
 			if (cgi.handle(req, fd.fd))
-				std::cout << "CGI handled\n";
+				Log::out(Log::INFO) << "CGI handled\n";
 			else 
 				handle_request(req, fd.fd);
 
-			std::cout << "\tclosed(" << fd.fd << ") A \n";
+			Log::out(Log::DEBUG) << "\tclosed(" << fd.fd << ") A \n";
 			close(fd.fd);
 			fd.fd = -1;
 

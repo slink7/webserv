@@ -5,13 +5,13 @@ Socket::Socket(unsigned short port, int queue) :
 {
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd < 0) {
-		std::cerr << "socket() failed: " << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "socket() failed: " << strerror(errno) << "\n";
 		return ;
 	}
 
 	int opt = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) {
-        std::cerr << "setsockopt() failed: " << strerror(errno) << "\n";
+        Log::out(Log::FUNCTION) << "setsockopt() failed: " << strerror(errno) << "\n";
 		return ;
 	}
 
@@ -23,13 +23,13 @@ Socket::Socket(unsigned short port, int queue) :
 
 	if (bind(fd, (const struct sockaddr*)&addr, sizeof(addr)) < 0) {
 		close(fd);
-		std::cerr << "bind() failed: " << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "bind() failed: " << strerror(errno) << "\n";
 		return ;
 	}
 
 	if (listen(fd, queue) < 0) {
 		close(fd);
-		std::cerr << "listen() failed: " << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "listen() failed: " << strerror(errno) << "\n";
 		return ;
 	}
 

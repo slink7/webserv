@@ -24,10 +24,15 @@ public:
 		return (instance);
 	}
 
+	static int& Count() {
+		static int	count = 0;
+		return (count);
+	}
+
     static Log& out(Level level = INFO) {
 		Log&  instance = Instance()(level);
 		if (instance.lock & instance.key) {
-			return (instance << "[" << LevelToString(level) << "-" << count++ << "\e[0m]");
+			return (instance << "[" << LevelToString(level) << "-" << Count()++ << "\e[0m]");
 		}
 		return (instance);
     }
@@ -68,7 +73,7 @@ public:
 private:
 	
     // Constructeur privé pour le singleton
-    Log() : output(&std::cout), key(INFO), lock(INFO) {}
+    Log() : output(&std::cout), key(INFO), lock(ALL) {}
 
     static std::string LevelToString(Level level) {
         switch (level) {
@@ -84,9 +89,6 @@ private:
     std::ostream* output;
     Level key;
     Level lock;
-	static int count;
 };
-
-int Log::count = 0;
 
 #endif

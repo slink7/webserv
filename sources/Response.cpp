@@ -60,11 +60,12 @@ void HTTP::Response::ReadCGI(int fd) {
 	}
 	
 	//CHECKING FOR EMPTY LINE
-	std::size_t body_start = raw.find("\n\n", index) + 2;
+	std::size_t body_start = raw.find("\n\n", index);
 	if (body_start == std::string::npos) {
 		std::cerr << "Error: Missing empty line in request\n";
 		return ;
 	}
+	body_start += 2;
 
 	//READING HEADERS
 	{
