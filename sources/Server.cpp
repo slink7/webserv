@@ -110,27 +110,18 @@ void Server::handle_request(HTTP::Request& req, int fd)
 	HTTP::Response rep;
 
 	if (req.GetMethod() == HTTP::UNDEFINED) {
-		rep.SetStatus("500 Internal Server Error");
-		rep.SetBodyFromFile("site/errors/500.html");
-		rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/500.html"));
+		rep.SetError(500);
 	} else if (req.GetMethod() == HTTP::INVALID) {
-		rep.SetStatus("501 Not Implemented");
-		rep.SetBodyFromFile("site/errors/501.html");
-		rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/501.html"));
+		rep.SetError(501);
 	} else if (FT::is_directory(req.GetTarget().substr(1))) {
-		rep.SetStatus("403 Forbidden");
-		rep.SetBodyFromFile("site/errors/403.html");
-		rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/403.html"));
-				
+		rep.SetError(403);
 	} else if (rep.SetBodyFromFile(req.GetTarget().substr(1))) {
 		rep.SetStatus("200 OK");
 		rep.AddHeader("Content-Type", FT::get_mime_type(req.GetTarget()));
+		rep.AddHeader("Content-Length", FT::itoa(rep.GetBody().size()));
 	} else {
-		rep.SetStatus("404 Not found");
-		rep.SetBodyFromFile("site/errors/404.html");
-		rep.AddHeader("Content-Type", FT::get_mime_type("site/errors/404.html"));
+		rep.SetError(404);
 	}
-	rep.AddHeader("Content-Length", FT::itoa(rep.GetBody().size()));
 	rep.Print(HTTP::Request::NO_BODY);
 	rep.Send(fd);
 }

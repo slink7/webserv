@@ -12,6 +12,7 @@
 #include "Response.hpp"
 #include "CGIHandler.hpp"
 #include "Log.hpp"
+#include "Error.hpp"
 
 #define RECV_SIZE 1024
 
