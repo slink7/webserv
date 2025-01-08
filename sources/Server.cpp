@@ -22,6 +22,8 @@ Server::Server(int port) :
 	fds.add(temp);
 
 	cgi.add(".php", "/usr/bin/php-cgi");
+
+	HTTP::Response::InitErrorList();
 }
 
 bool pred(const pollfd& poll) {
@@ -89,7 +91,7 @@ bool Server::handle_event(pollfd &fd)
 			HTTP::Request req;
 			req.Receive(fd.fd);
 
-			req.Print(HTTP::Request::NO_BODY);
+			req.Print(HTTP::Request::START_LINE);
 
 			if (cgi.handle(req, fd.fd))
 				Log::out(Log::INFO) << "CGI handled\n";

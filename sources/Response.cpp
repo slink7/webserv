@@ -36,8 +36,6 @@ void HTTP::Response::Send(int fd) const {
 	buffer << body;
 
 	std::string f = buffer.str();
-	if (buffer.str().size() < 1024)
-		std::cout << buffer.str() << "\n";
 	FT::send(fd, f);
 }
 
@@ -92,14 +90,19 @@ void HTTP::Response::ReadCGI(int fd) {
 void HTTP::Response::SetError(int error_code) {
 	std::map<int, Error>::iterator it = error_list.find(error_code);
 
-	if (it != error_list.end()) {
+	// Log::out(Log::DEBUG) << (it != error_list.end() ? "true" : "false") << "\n";
+
+	if (it == error_list.end()) {
 		Log::out(Log::ERROR) << "Invalid error code " << error_code << "\n";
 		if (error_code != 500)
 			SetError(500);
 		return ; 
 	}
-	const Error& err = it->second;
-	SetStatus(FT::itoa(err.code) + err.status);
+	Error err = it->second;
+
+	Log::out(Log::DEBUG) << " " << error_code << " " << err.code << " " << err.status << " " << err.default_path << " " << err.custom_path << "\n"; 
+
+	SetStatus(FT::itoa(err.code) + " " + err.status);
 	bool custom = SetBodyFromFile(err.custom_path);
 	if (custom) {
 		AddHeader("Content-Type", FT::get_mime_type(err.custom_path));
@@ -116,8 +119,8 @@ void HTTP::Response::SetError(int error_code) {
 }
 
 void HTTP::Response::InitErrorList() {
-	error_list[400] = Error(400, "Not Found ...", "site/errors/404.html", "");
 	error_list[403] = Error(403, "Forbidden", "site/errors/403.html", "");
+	error_list[404] = Error(404, "Not Found ...", "site/errors/404.html", "");
 	error_list[500] = Error(500, "Internal Server Error", "site/errors/500.html", "");
 	error_list[501] = Error(501, "Not Implemented", "site/errors/501.html", "");
 }
