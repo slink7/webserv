@@ -119,8 +119,17 @@ void HTTP::Response::SetError(int error_code) {
 }
 
 void HTTP::Response::InitErrorList() {
+	error_list[400] = Error(400, "Bad Request", "site/errors/400.html", "");
+	error_list[401] = Error(401, "Unauthorized", "site/errors/401.html", "");
+	error_list[402] = Error(402, "Payment Required", "site/errors/402.html", "");
 	error_list[403] = Error(403, "Forbidden", "site/errors/403.html", "");
-	error_list[404] = Error(404, "Not Found ...", "site/errors/404.html", "");
+	error_list[404] = Error(404, "Not Found", "site/errors/404.html", "");
+	error_list[405] = Error(405, "Method Not Allowed", "site/errors/405.html", "");
+	error_list[406] = Error(406, "Not Acceptable", "site/errors/406.html", "");
 	error_list[500] = Error(500, "Internal Server Error", "site/errors/500.html", "");
 	error_list[501] = Error(501, "Not Implemented", "site/errors/501.html", "");
+	error_list[502] = Error(502, "Bad Gateway", "site/errors/502.html", "");
+	error_list[503] = Error(503, "Service Unavailable", "site/errors/503.html", "");
+	error_list[504] = Error(504, "Gateway Timeout", "site/errors/504.html", "");
+	error_list[505] = Error(505, "HTTP Version Not Supported", "site/errors/505.html", "");
 }
