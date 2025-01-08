@@ -6,8 +6,6 @@
 #include <sstream>
 #include <string>
 
-
-
 class Log {
 public:
     enum Level {

@@ -38,14 +38,16 @@ const std::string &HTTP::Message::GetBody() const {
 }
 
 void HTTP::Message::Print(PrintFlag flags) const {
-	std::cout << "\n\n\tMESSAGE\n\n";
+	std::stringstream ss;
+	ss << "\tMESSAGE\n";
 	if (flags & START_LINE)
-		std::cout << "Start_line:\"" << GetStartLine() << "\"\n";
+		ss << "Start_line:\"" << GetStartLine() << "\"\n";
 	if (flags & HEADERS) {
-		std::cout << "Headers:\n";
+		ss << "Headers:\n";
 		for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++)
-			std::cout << "\t\"" << it->first << "\" \t= \"" << it->second << "\"\n";
+			ss << "\t\"" << it->first << "\" \t= \"" << it->second << "\"\n";
 	}
 	if (flags & BODY)
-		std::cout << "Body:\"\n" << body << "\n\"\n";
+		ss << "Body:\"\n" << body << "\n\"\n";
+	Log::out(Log::INFO) << ss.str();
 }

@@ -2,9 +2,12 @@
 #define MESSAGE_HPP
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <map>
+
+#include "Log.hpp"
 
 namespace HTTP {
 	class Message {
