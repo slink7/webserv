@@ -30,7 +30,7 @@ public:
     static Log& out(Level level = INFO) {
 		Log&  instance = Instance()(level);
 		if (instance.lock & instance.key) {
-			return (instance << "[" << LevelToString(level) << "-" << Count()++ << "\e[0m]");
+			return (instance << "[" << LevelToString(level) << "-" << Count()++ << "\e[0m] ");
 		}
 		return (instance);
     }

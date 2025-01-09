@@ -18,7 +18,7 @@ bool HTTP::Response::SetBodyFromFile(const std::string &path) {
 	std::ifstream file(path.c_str());
 
 	if (!file.is_open()) {
-		std::cout << "File \"" << path << "\" couldn't be oppenned\n";
+		Log::out(Log::ERROR) << "File \"" << path << "\" couldn't be oppenned\n";
 		return (false);
 	}
 
@@ -62,7 +62,7 @@ void HTTP::Response::ReadCGI(int fd) {
 	//CHECKING FOR EMPTY LINE
 	std::size_t body_start = raw.find("\n\n", index);
 	if (body_start == std::string::npos) {
-		std::cerr << "Error: Missing empty line in request\n";
+		Log::out(Log::FUNCTION) << "Error: Missing empty line in request\n";
 		return ;
 	}
 	body_start += 2;
@@ -90,17 +90,13 @@ void HTTP::Response::ReadCGI(int fd) {
 void HTTP::Response::SetError(int error_code) {
 	std::map<int, Error>::iterator it = error_list.find(error_code);
 
-	// Log::out(Log::DEBUG) << (it != error_list.end() ? "true" : "false") << "\n";
-
 	if (it == error_list.end()) {
 		Log::out(Log::ERROR) << "Invalid error code " << error_code << "\n";
 		if (error_code != 500)
 			SetError(500);
 		return ; 
 	}
-	Error err = it->second;
-
-	Log::out(Log::DEBUG) << " " << error_code << " " << err.code << " " << err.status << " " << err.default_path << " " << err.custom_path << "\n"; 
+	Error& err = it->second;
 
 	SetStatus(FT::itoa(err.code) + " " + err.status);
 	bool custom = SetBodyFromFile(err.custom_path);

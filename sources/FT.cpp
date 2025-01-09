@@ -9,7 +9,7 @@ int FT::send(int fd, const char *msg, int len) {
 
 	out = ::send(fd, msg, len, 0);
 	if (out < 0) {
-		std::cerr << "send() failed: " << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "send() failed: " << strerror(errno) << "\n";
 	}
 	return (out);
 }
@@ -23,7 +23,7 @@ int FT::send(int fd, const char *msg) {
 }
 
 int FT::receive(int fd, std::string &out) {
-	std::ostringstream stream;
+	std::ostringstream stream;		
 	char	buffer[RECV_SIZE];
 	int		len = 0;
 	int		k;
@@ -31,7 +31,10 @@ int FT::receive(int fd, std::string &out) {
 	do {
 		k = ::recv(fd, buffer, RECV_SIZE - 1, 0);
 		if (k < 0) {
-			std::cerr << "recv() failed: " << strerror(errno) << "\n";
+			if (errno != EWOULDBLOCK) {
+				Log::out(Log::FUNCTION) << "recv() failed: " << strerror(errno) << "\n";
+			}
+			out = stream.str();
 			break ;
 		}
 		buffer[k] = 0;
@@ -39,7 +42,7 @@ int FT::receive(int fd, std::string &out) {
 		stream << buffer;
 	} while (k >= RECV_SIZE - 1);
 	out = stream.str();
-	return (k);
+	return (len);
 }
 
 int FT::read(int fd, std::string &out) {
@@ -51,7 +54,7 @@ int FT::read(int fd, std::string &out) {
 	do {
 		k = ::read(fd, buffer, RECV_SIZE - 1);
 		if (k < 0) {
-			std::cerr << "recv() failed: " << strerror(errno) << "\n";
+			Log::out(Log::FUNCTION) << "recv() failed: " << strerror(errno) << "\n";
 			break ;
 		}
 		buffer[k] = 0;
@@ -71,7 +74,7 @@ std::string FT::itoa(int n) {
 bool FT::is_directory(const std::string &path) {
 	struct stat	out;
 	if (stat(path.c_str(), &out) < 0) {
-		std::cerr << "stat() failed: " << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "stat() failed: " << strerror(errno) << "\n";
 		return (false);
 	}
 	return ((out.st_mode & S_IFDIR) != 0);
@@ -80,7 +83,7 @@ bool FT::is_directory(const std::string &path) {
 bool FT::is_file(const std::string &path) {
 	struct stat	out;
 	if (stat(path.c_str(), &out) < 0) {
-		std::cerr << "stat() failed: " << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "stat() failed: " << strerror(errno) << "\n";
 		return (false);
 	}
 	return ((out.st_mode & S_IFREG) != 0);

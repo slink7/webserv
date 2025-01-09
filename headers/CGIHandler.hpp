@@ -9,6 +9,7 @@
 #include <vector>
 #include <sys/wait.h>
 #include <cerrno>
+#include <stdlib.h>
 
 #include "Response.hpp"
 #include "Request.hpp"

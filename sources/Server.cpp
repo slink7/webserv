@@ -75,7 +75,7 @@ bool Server::handle_event(pollfd &fd)
 			}
 		}
 		Log::out(Log::DEBUG) << "\topenned(" << client_fd << ")\n";
-		// Socket::set_flag(client_fd, O_NONBLOCK, true);
+		Socket::set_flag(client_fd, O_NONBLOCK, true);
 		struct pollfd temp;
 		temp.fd = client_fd;
 		temp.events = POLLIN;

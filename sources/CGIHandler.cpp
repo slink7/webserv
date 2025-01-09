@@ -4,33 +4,24 @@ bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
 	std::string path = req.GetTarget().substr(1);
 	std::map<std::string, std::string>::const_iterator it = get_iterator(path);
 	if (it == cgis.end()) {
-		std::cout << path << " is not handled by CGIs\n";
+		Log::out(Log::DEBUG) << path << " is not handled by CGIs\n";
 		return (false);
 	} else {
-		std::cout << path << " is handled by CGIs\n";
+		Log::out(Log::DEBUG) << path << " is handled by CGIs\n";
 	}
 
 	int ends[2] = {0};
 	int s = pipe(ends);
 	if (s == -1) {
-		std::cerr << "pipe() failed:" << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "pipe() failed:" << strerror(errno) << "\n";
 		return (false);
 	}
 
 	int pid = fork();
 	if (pid == -1) {
-		std::cerr << "fork() failed:" << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "fork() failed:" << strerror(errno) << "\n";
 		return (false);
 	}
-
-	// const std::map<std::string, std::string> &headers = req.GetHeaderMap();
-	// const char *envp[headers.size() + 1];
-	// envp[headers.size()] = 0;
-	// int k = 0;
-	// for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); it++) {
-	// 	envp[k] = (it->first + "=" + it->second).c_str();
-	// 	k++;
-	// }
 
 	if (!pid) {
 
@@ -63,19 +54,17 @@ bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
 		// Rediriger la sortie
 
 		// Exécuter la commande
-		std::cout << "ENVP\n";
-		for (std::size_t k = 0; k < envp.size(); k++)
-			std::cout << envp[k] << "\n";
 		dup2(ends[1], 1);
 		execve(it->second.c_str(), e, const_cast<char* const*>(envp.data()));
 
 		// Gestion des erreurs
-		std::cerr << "execve() failed: " << strerror(errno) << "\n";
+		Log::out(Log::FUNCTION) << "execve() failed: " << strerror(errno) << "\n";
+		exit(420);
 	} else {
 		int status = waitpid(pid, 0, WUNTRACED);
 		if (status == -1)
-			std::cerr << "waitpid() failed: " << strerror(errno) << "\n";
-		std::cout << "execve exited with code " << status << "\n"; 
+			Log::out(Log::FUNCTION) << "waitpid() failed: " << strerror(errno) << "\n";
+		Log::out(Log::DEBUG) << "Execve exited with code " << status << "\n"; 
 
 		HTTP::Response rep;
 		rep.ReadCGI(ends[0]);

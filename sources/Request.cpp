@@ -8,23 +8,25 @@ HTTP::Request::Request() :
 
 void HTTP::Request::Receive(int fd) {
 	std::string raw;
-	FT::receive(fd, raw);
 
+	FT::receive(fd, raw);
 	FT::replace(raw, "\r\n", "\n");
 	
 	int index = 0;
 
 	{
 		std::size_t end = raw.find_first_of('\n');
-		if (end == std::string::npos)
+		if (end == std::string::npos){
+			Log::out(Log::WARNING) << "Warning: No newline in request\n";
 			return ;
+		}
 		start_line = raw.substr(0, end);
 		index = end + 1;
 	}
 	
 	std::size_t body_start = raw.find("\n\n", index) + 2;
 	if (body_start == std::string::npos) {
-		std::cerr << "Error: Missing empty line in request\n";
+		Log::out(Log::WARNING) << "Warning: Missing empty line in request\n";
 		return ;
 	}
 
@@ -48,6 +50,8 @@ void HTTP::Request::Receive(int fd) {
 
 	{
 		method = EvaluateMethod(start_line);
+		if (method == INVALID)
+			Log::out(Log::WARNING) << "Warning: Invalid Method in request\n";
 	}
 
 	{

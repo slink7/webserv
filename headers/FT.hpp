@@ -11,6 +11,8 @@
 #include <cerrno>
 #include <sys/stat.h>
 
+#include "Log.hpp"
+
 namespace FT {
 	const int RECV_SIZE = 17;
 
