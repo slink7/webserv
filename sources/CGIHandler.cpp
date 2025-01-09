@@ -48,12 +48,8 @@ bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
 			envp.push_back(env_storage.back().c_str());
 		}
 
-		// Terminer le tableau avec un pointeur nul
 		envp.push_back(0);
 
-		// Rediriger la sortie
-
-		// Exécuter la commande
 		dup2(ends[1], 1);
 		execve(it->second.c_str(), e, const_cast<char* const*>(envp.data()));
 
@@ -75,10 +71,8 @@ bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
 			rep.SetStatus("200 OK");
 		}
 
-		rep.Print(HTTP::Message::ALL);
-
+		rep.Print(HTTP::Message::NO_BODY);
 		rep.Send(fd);
-		//FT::send(fd, res);
 	}
 	return (true);
 }

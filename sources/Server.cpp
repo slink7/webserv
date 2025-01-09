@@ -61,8 +61,13 @@ bool Server::handle_event(pollfd &fd)
 		return (false);
 
 	if (fd.fd == 0) {
-		Log::out(Log::INFO) << "STDOUT\n";
-		running = false;
+		
+		std::string line;
+		FT::read(0, line);
+		if (line.compare("stop")) {
+			Log::out(Log::INFO) << "Stopping Server...\n";
+			running = false;
+		}
 	}
 
 	else if (fd.fd == socket.get_fd()) {
