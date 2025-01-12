@@ -23,39 +23,37 @@ bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
 		return (false);
 	}
 
+	// Obtenez le nom de la commande à partir du chemin
+	std::string cmd_str = it->second.substr(it->second.find_last_of("/") + 1);
+	char cmd[cmd_str.size() + 1];
+	std::strcpy(cmd, cmd_str.c_str());
+
+	// Préparez les arguments
+	std::vector<char> path_buf(path.size() + 1);
+	std::strcpy(path_buf.data(), path.c_str());
+	char *const e[] = {cmd, path_buf.data(), 0};
+
+	const std::map<std::string, std::string> &headers = req.GetHeaderMap();
+
+	char *envp[headers.size() + 1];
+
+	int k = 0;
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
+		std::string temp = it->first + "=" + it->second;
+		envp[k] = new char[temp.size() + 1];
+		std::strcpy(envp[k], temp.c_str());
+		k++;
+	}
+	envp[k] = 0;
+
 	if (!pid) {
 
-		// Obtenez le nom de la commande à partir du chemin
-		std::string cmd_str = it->second.substr(it->second.find_last_of("/") + 1);
-		char cmd[cmd_str.size() + 1];
-		std::strcpy(cmd, cmd_str.c_str());
-
-		// Préparez les arguments
-		std::vector<char> path_buf(path.size() + 1);
-		std::strcpy(path_buf.data(), path.c_str());
-		char *const e[] = {cmd, path_buf.data(), 0};
-
-		const std::map<std::string, std::string> &headers = req.GetHeaderMap();
-
-		// Stockage des chaînes pour garantir leur durée de vie
-		std::vector<std::string> env_storage;
-		std::vector<const char*> envp;
-
-		for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it) {
-			// Concaténer la clé et la valeur
-			env_storage.push_back(it->first + "=" + it->second);
-			// Ajouter un pointeur vers les données de la chaîne
-			envp.push_back(env_storage.back().c_str());
-		}
-
-		envp.push_back(0);
-
 		dup2(ends[1], 1);
-		execve(it->second.c_str(), e, const_cast<char* const*>(envp.data()));
+		execve(it->second.c_str(), e, (char **)envp);
 
 		// Gestion des erreurs
 		Log::out(Log::FUNCTION) << "execve() failed: " << strerror(errno) << "\n";
-		exit(420);
+		_exit(420);
 	} else {
 		int status = waitpid(pid, 0, WUNTRACED);
 		if (status == -1)
@@ -74,6 +72,11 @@ bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
 		rep.Print(HTTP::Message::NO_BODY);
 		rep.Send(fd);
 	}
+
+
+	for (unsigned int k = 0; k < headers.size(); k++)
+		delete[] envp[k];
+
 	return (true);
 }
 
