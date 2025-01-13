@@ -6,14 +6,13 @@
 	</head>
 	<body>
 		<div>
-			<?php
-			// Vérification supplémentaire avec getenv()
-			echo "<pre>";
-			foreach (getenv() as $key => $value) {
-				echo "$key => $value\n";
-			}
-			echo "</pre>";
-			?>
+			<pre>
+<?php
+foreach (getenv() as $key => $value) {
+	echo "\t\t\t$key => $value\n";
+}
+?>
+			</pre>
 		</div>
 	</body>
 </html>
