@@ -64,7 +64,7 @@ bool Server::handle_event(pollfd &fd)
 		
 		std::string line;
 		FT::read(0, line);
-		if (line.compare("stop")) {
+		if (!line.compare(0, 4, "stop")) {
 			Log::out(Log::INFO) << "Stopping Server...\n";
 			running = false;
 		}
