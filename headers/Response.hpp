@@ -12,10 +12,6 @@
 namespace HTTP {
 
 	class Response : public Message {
-	private:
-		Response(const Response& other);
-
-		Response&	operator=(const Response& other);
 	
 	public:
 		Response();

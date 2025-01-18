@@ -11,11 +11,6 @@
 
 namespace HTTP {
 	class Message {
-	
-	private:
-		Message(const Message& other);
-
-		Message&	operator=(const Message& other);
 
 	public:
 

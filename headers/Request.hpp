@@ -8,11 +8,6 @@
 namespace HTTP {
 	class Request : public Message {
 
-	private:
-		Request(const Request& other);
-
-		Request&	operator=(const Request& other);
-
 	public:
 		Request();
 
