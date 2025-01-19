@@ -67,22 +67,31 @@ void	add_fd(int fd, int events) {
 	fds.push_back(temp);
 }
 
+void	rm_fd(std::vector<pollfd>::iterator it) {
+	parents.erase(it->fd);
+	buffer.erase(it->fd);
+	close(it->fd);
+	fds.erase(it);
+}
+
 int	main() {
 	HTTP::Response::InitErrorList();
 
 	fds.reserve(100);
 
 	open_socket((config){8080});
-	open_socket((config){8081});
+	// open_socket((config){8081});
 
 	add_fd(0, POLLIN);
 	for (std::vector<int>::iterator it = sockets.begin(); it != sockets.end(); it++)
 		add_fd(*it, POLLIN);
 
 	bool exit = false;
-	int k = 10;
+	int k = 16;
 	while (!exit && k--) {
-		int count = poll(fds.data(), fds.size(), -1);
+		Log::out(Log::DEBUG) << "\n[" << k << "]\n\n";
+		int count = poll(fds.data(), fds.size(), 100000);
+		Log::out(Log::DEBUG) << "poll: " << count << " event(s) to treat\n";
 		if (count < 0) {
 			Log::out(Log::FUNCTION) << "poll() failed: " << strerror(errno) << "\n";
 			exit = true;
@@ -93,19 +102,20 @@ int	main() {
 				continue ;
 			count--;
 
+			Log::out(Log::INFO) << "fd: " << it->fd << ": " << it->revents << " " << ((it->revents & POLLIN) ? "POLLIN" : "") << " " << ((it->revents & POLLOUT) ? "POLLOUT" : "") << "\n";
 			if (!it->fd) {
 				exit = true;
 				Log::out(Log::INFO) << "STDIN exiting...\n";
 				break ;
 			} else if (std::find(sockets.begin(), sockets.end(), it->fd) != sockets.end()) {
-				Log::out(Log::INFO) << "Accepting new client\n";
 				int client_fd = accept(it->fd, 0, 0);
+				Log::out(Log::INFO) << "Accepting new client " << client_fd << "\n";
 				if (client_fd < 0) {
 					Log::out(Log::FUNCTION) << "accept() failed: " << strerror(errno) << "\n";
 					exit = true;
 					continue ;
 				}
-				add_fd(client_fd, POLLIN | POLLOUT);
+				add_fd(client_fd, POLLIN);
 				parents[client_fd] = it->fd;
 			} else if (it->revents & POLLIN) {
 				
@@ -123,11 +133,22 @@ int	main() {
 				}
 
 				it->revents = 0;
-			} else if (it->revents & POLLOUT && buffer.find(it->fd) != buffer.end()) {
+				it->events |= POLLOUT;
+			}
+			if (it->revents & POLLOUT && buffer.find(it->fd) != buffer.end()) {
+				Log::out(Log::INFO) << "res " << buffer[it->fd].GetStartLine() << "\n";
 				HTTP::Response res;
 				res.SetError(404);
 				res.Send(it->fd);
 				it->revents = 0;
+				
+				Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";
+				parents.erase(it->fd);
+				buffer.erase(it->fd);
+				close(it->fd);
+				it = fds.erase(it);
+			} else {
+				it++;
 			}
 		}
 		
