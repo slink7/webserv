@@ -15,7 +15,8 @@ SRC = \
 	Response.cpp\
 	Request.cpp\
 	CGIHandler.cpp\
-	Error.cpp
+	Error.cpp\
+	Proxy.cpp
 
 CFLAGS = -Wall -Werror -Wextra -g3 -std=c++98
 LFLAGS =
