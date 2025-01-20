@@ -81,7 +81,7 @@ void Proxy::Run() {
 	
 	bool exit = false;
 	while (!exit) {
-		int count = poll(fds.data(), fds.size(), 100000);
+		int count = poll(fds.data(), fds.size(), -1);
 		if (count < 0) {
 			Log::out(Log::FUNCTION) << "poll() failed: " << strerror(errno) << "\n";
 			exit = true;
