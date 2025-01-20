@@ -7,5 +7,6 @@ int	main() {
 	
 	Proxy p;
 	p.AddServer((Config){8080});
+	p.AddFD(0, POLLIN);
 	p.Run();
 }

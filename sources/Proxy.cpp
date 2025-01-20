@@ -60,15 +60,20 @@ std::vector<pollfd>::iterator Proxy::RemoveClient(std::vector<pollfd>::iterator 
 {
 	parents.erase(it->fd);
 	requests.erase(it->fd);
-	if(it->fd >= 0)
+	if(it->fd >= 0) {
 		close(it->fd);
+		it->fd = -1;
+	}
 	return (fds.erase(it));
 }
 
 void Proxy::CloseFDs() {
-	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); it++)
-		if (it->fd >= 0)
+	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); it++) {
+		if (it->fd >= 0) {
 			close(it->fd);
+			it->fd = -1;
+		}
+	}
 }
 
 void Proxy::Run() {
@@ -77,7 +82,6 @@ void Proxy::Run() {
 	bool exit = false;
 	while (!exit) {
 		int count = poll(fds.data(), fds.size(), 100000);
-		Log::out(Log::DEBUG) << "poll: " << count << " event(s) to treat\n";
 		if (count < 0) {
 			Log::out(Log::FUNCTION) << "poll() failed: " << strerror(errno) << "\n";
 			exit = true;
@@ -88,41 +92,41 @@ void Proxy::Run() {
 				continue ;
 			count--;
 
-			Log::out(Log::INFO) << "fd: " << it->fd << ": " << it->revents << " " << ((it->revents & POLLIN) ? "POLLIN" : "") << " " << ((it->revents & POLLOUT) ? "POLLOUT" : "") << "\n";
 			if (!it->fd) {
+
 				exit = true;
 				Log::out(Log::INFO) << "STDIN exiting...\n";
+
 			} else if (std::find(sockets.begin(), sockets.end(), it->fd) != sockets.end()) {
+				
 				int client_fd = accept(it->fd, 0, 0);
 				Log::out(Log::INFO) << "Accepting new client " << client_fd << "\n";
 				if (client_fd < 0) {
 					Log::out(Log::FUNCTION) << "accept() failed: " << strerror(errno) << "\n";
 					exit = true;
 				}
+
 				AddFD(client_fd, POLLIN);
 				parents[client_fd] = it->fd;
+
 			} else if (it->revents & POLLIN) {
 				
 				HTTP::Request& req = requests[it->fd];
 				req.Receive(it->fd);
 				req.Print();
-				if (req.GetStartLine().size() < 2) {
-					Log::out(Log::ERROR) << "Weird start line\n";
-					exit = true;
-				} else if (req.GetMethod() == HTTP::INVALID) {
-					Log::out(Log::ERROR) << "Invalid method\n";
-					exit = true;
-				}
 
 				it->revents = 0;
 				it->events |= POLLOUT;
+			
 			}
+
 			if (it->revents & POLLOUT && requests.find(it->fd) != requests.end()) {
-				Log::out(Log::INFO) << "res " << requests[it->fd].GetStartLine() << "\n";
+				
+				requests[it->fd].Print();
+
 				HTTP::Response res;
 				res.SetError(404);
 				res.Send(it->fd);
-				it->revents = 0;
 				
 				Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";
 				it = RemoveClient(it);
