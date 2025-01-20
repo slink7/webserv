@@ -76,6 +76,51 @@ void Proxy::CloseFDs() {
 	}
 }
 
+bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
+	if (!it->fd) {
+
+		Log::out(Log::INFO) << "STDIN exiting...\n";
+		return (false);
+
+	} else if (std::find(sockets.begin(), sockets.end(), it->fd) != sockets.end()) {
+		
+		int client_fd = accept(it->fd, 0, 0);
+		Log::out(Log::INFO) << "Accepting new client " << client_fd << "\n";
+		if (client_fd < 0) {
+			Log::out(Log::FUNCTION) << "accept() failed: " << strerror(errno) << "\n";
+			return (false);
+		}
+
+		AddFD(client_fd, POLLIN);
+		parents[client_fd] = it->fd;
+
+	} else if (it->revents & POLLIN) {
+		
+		HTTP::Request& req = requests[it->fd];
+		req.Receive(it->fd);
+		req.Print();
+
+		it->revents = 0;
+		it->events |= POLLOUT;
+
+	}
+
+	if (it->revents & POLLOUT && requests.find(it->fd) != requests.end()) {
+		
+		requests[it->fd].Print();
+
+		HTTP::Response res;
+		res.SetError(404);
+		res.Send(it->fd);
+		
+		Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";
+		it = RemoveClient(it);
+	} else {
+		it++;
+	}
+	return (true);
+}
+
 void Proxy::Run() {
 	AddSocketsToPoll();
 	
@@ -92,47 +137,8 @@ void Proxy::Run() {
 				continue ;
 			count--;
 
-			if (!it->fd) {
-
+			if(!HandleEvent(it))
 				exit = true;
-				Log::out(Log::INFO) << "STDIN exiting...\n";
-
-			} else if (std::find(sockets.begin(), sockets.end(), it->fd) != sockets.end()) {
-				
-				int client_fd = accept(it->fd, 0, 0);
-				Log::out(Log::INFO) << "Accepting new client " << client_fd << "\n";
-				if (client_fd < 0) {
-					Log::out(Log::FUNCTION) << "accept() failed: " << strerror(errno) << "\n";
-					exit = true;
-				}
-
-				AddFD(client_fd, POLLIN);
-				parents[client_fd] = it->fd;
-
-			} else if (it->revents & POLLIN) {
-				
-				HTTP::Request& req = requests[it->fd];
-				req.Receive(it->fd);
-				req.Print();
-
-				it->revents = 0;
-				it->events |= POLLOUT;
-			
-			}
-
-			if (it->revents & POLLOUT && requests.find(it->fd) != requests.end()) {
-				
-				requests[it->fd].Print();
-
-				HTTP::Response res;
-				res.SetError(404);
-				res.Send(it->fd);
-				
-				Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";
-				it = RemoveClient(it);
-			} else {
-				it++;
-			}
 		}
 		
 	}

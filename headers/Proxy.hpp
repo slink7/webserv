@@ -30,6 +30,7 @@ public:
 	void							AddSocketsToPoll();
 	std::vector<pollfd>::iterator	RemoveClient(std::vector<pollfd>::iterator it);
 	void							CloseFDs();
+	bool							HandleEvent(std::vector<pollfd>::iterator& it);
 	void							Run();
 
 private:
