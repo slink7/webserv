@@ -96,18 +96,30 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 
 	} else if (it->revents & POLLIN) {
 		
-		HTTP::Request& req = requests[it->fd];
-		req.Receive(it->fd);
-		req.Print();
+		const int			recv_size = 16;
+		char				buffer[recv_size];
+		int					len;
+
+		len = recv(it->fd, buffer, recv_size - 1, 0);
+		if (len >= 0)
+			buffer[len] = 0;
+
+		requests[it->fd] += buffer;
+
+		Log::out(Log::DEBUG) << "RECV\n";
+		Log::out(Log::DEBUG) << "size: " << requests[it->fd].size() << "\n";
+		Log::out(Log::DEBUG) << "frag: " << (int)buffer[len - 3] << " " << (int)buffer[len - 2] << " " << (int)buffer[len - 1] << "\n";
+		Log::out(Log::DEBUG) << "len:" <<  len << "\n";
 
 		it->revents = 0;
-		it->events |= POLLOUT;
-
+		if (len < (recv_size - 1)) {
+			it->events |= POLLOUT;
+		}
 	}
 
-	if (it->revents & POLLOUT && requests.find(it->fd) != requests.end()) {
+	if (it->revents & POLLOUT) {
 		
-		requests[it->fd].Print();
+
 
 		HTTP::Response res;
 		res.SetError(404);

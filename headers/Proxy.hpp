@@ -34,13 +34,13 @@ public:
 	void							Run();
 
 private:
-	static const int				max_fds_count;
+	static const int			max_fds_count;
 
-	std::map<int, Config>			configs;
-	std::vector<int>				sockets;
-	std::vector<pollfd>				fds;
-	std::map<int, int>				parents;
-	std::map<int, HTTP::Request>	requests;
+	std::map<int, Config>		configs;
+	std::vector<int>			sockets;
+	std::vector<pollfd>			fds;
+	std::map<int, int>			parents;
+	std::map<int, std::string>	requests;
 
 };
 
