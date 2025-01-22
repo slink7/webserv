@@ -32,6 +32,7 @@ public:
 	void							CloseFDs();
 	bool							HandleEvent(std::vector<pollfd>::iterator& it);
 	void							Run();
+	void							Clear();
 
 private:
 	static const int			max_fds_count;

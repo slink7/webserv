@@ -97,7 +97,7 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 	} else if (it->revents & POLLIN) {
 		
 		const int			recv_size = 16;
-		char				buffer[recv_size];
+		char				buffer[recv_size] = {0};
 		int					len;
 
 		len = recv(it->fd, buffer, recv_size - 1, 0);
@@ -106,14 +106,11 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 
 		requests[it->fd] += buffer;
 
-		Log::out(Log::DEBUG) << "RECV\n";
-		Log::out(Log::DEBUG) << "size: " << requests[it->fd].size() << "\n";
-		Log::out(Log::DEBUG) << "frag: " << (int)buffer[len - 3] << " " << (int)buffer[len - 2] << " " << (int)buffer[len - 1] << "\n";
-		Log::out(Log::DEBUG) << "len:" <<  len << "\n";
-
 		it->revents = 0;
 		if (len < (recv_size - 1)) {
+			Log::out(Log::DEBUG) << it->fd << " sent \"" << requests[it->fd] << "\" (" << requests[it->fd].size() << ")\n";
 			it->events |= POLLOUT;
+			it->events &= ~POLLIN;
 		}
 	}
 
@@ -156,4 +153,9 @@ void Proxy::Run() {
 	}
 
 	CloseFDs();
+	Clear();
+}
+
+void	Proxy::Clear() {
+	requests.clear();
 }
