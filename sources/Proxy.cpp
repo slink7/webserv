@@ -44,7 +44,10 @@ bool Proxy::AddServer(const Config &config) {
 }
 
 void Proxy::AddFD(int fd, int events) {
+	if (fds.size() >= max_fds_count)
+		return ;
 	struct pollfd temp;
+	std::memset(&temp, 0, sizeof(pollfd));
 	temp.fd = fd;
 	temp.events = events;
 	temp.revents = 0;
@@ -64,7 +67,7 @@ std::vector<pollfd>::iterator Proxy::RemoveClient(std::vector<pollfd>::iterator 
 		close(it->fd);
 		it->fd = -1;
 	}
-	return (fds.erase(it));
+	return (it);
 }
 
 void Proxy::CloseFDs() {
@@ -123,9 +126,7 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 		res.Send(it->fd);
 		
 		Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";
-		it = RemoveClient(it);
-	} else {
-		it++;
+		RemoveClient(it);
 	}
 	return (true);
 }
@@ -149,7 +150,13 @@ void Proxy::Run() {
 			if(!HandleEvent(it))
 				exit = true;
 		}
-		
+
+		for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end();) {
+			if (it->fd == -1)
+				fds.erase(it);
+			else
+				it++;
+		}
 	}
 
 	CloseFDs();
