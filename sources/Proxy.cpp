@@ -111,7 +111,7 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 
 		it->revents = 0;
 		if (len < (recv_size - 1)) {
-			Log::out(Log::DEBUG) << it->fd << " sent \"" << requests[it->fd] << "\" (" << requests[it->fd].size() << ")\n";
+			// Log::out(Log::DEBUG) << it->fd << " sent \"" << requests[it->fd] << "\" (" << requests[it->fd].size() << ")\n";
 			it->events |= POLLOUT;
 			it->events &= ~POLLIN;
 		}
@@ -122,8 +122,7 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 		HTTP::Request req(requests[it->fd]);
 		req.Print();
 
-		HTTP::Response res;
-		res.SetError(404);
+		HTTP::Response res(req);
 		res.Send(it->fd);
 		
 		Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";

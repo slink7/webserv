@@ -6,6 +6,12 @@ HTTP::Response::Response() :
 	Message()
 {}
 
+HTTP::Response::Response(const HTTP::Request &req) :
+	Message()
+{
+	LoadFromRequest(req);
+}
+
 void HTTP::Response::SetStatus(const std::string &status) {
 	start_line = "HTTP/1.1 " + status;
 }
@@ -18,12 +24,28 @@ bool HTTP::Response::SetBodyFromFile(const std::string &path) {
 	std::ifstream file(path.c_str());
 
 	if (!file.is_open()) {
-		Log::out(Log::ERROR) << "File \"" << path << "\" couldn't be oppenned\n";
+		Log::out(Log::WARNING) << "File \"" << path << "\" couldn't be oppenned\n";
 		return (false);
 	}
 
 	body.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
 	return (true);
+}
+
+void HTTP::Response::LoadFromRequest(const HTTP::Request &req) {
+	if (req.GetMethod() == HTTP::UNDEFINED) {
+		SetError(500);
+	} else if (req.GetMethod() == HTTP::INVALID) {
+		SetError(501);
+	} else if (FT::is_directory(req.GetTarget().substr(1))) {
+		SetError(403);
+	} else if (SetBodyFromFile(req.GetTarget().substr(1))) {
+		SetStatus("200 OK");
+		AddHeader("Content-Type", FT::get_mime_type(req.GetTarget()));
+		AddHeader("Content-Length", FT::itoa(GetBody().size()));
+	} else {
+		SetError(404);
+	}
 }
 
 void HTTP::Response::Send(int fd) const {

@@ -6,6 +6,7 @@
 
 #include "FT.hpp"
 #include "Message.hpp"
+#include "Request.hpp"
 #include "Error.hpp"
 #include "Log.hpp"
 
@@ -15,10 +16,12 @@ namespace HTTP {
 	
 	public:
 		Response();
+		Response(const HTTP::Request& req);
 
 		void		SetStatus(const std::string& status);
 		void		SetBodyRaw(const std::string& body);
 		bool		SetBodyFromFile(const std::string& path);
+		void		LoadFromRequest(const HTTP::Request& req);
 		void		Send(int fd) const;
 		void		ReadCGI(int fd);
 		void		SetError(int error_code);
