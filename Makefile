@@ -11,7 +11,6 @@ SRC = \
 	FT.cpp\
 	Socket.cpp\
 	Message.cpp\
-	Server.cpp\
 	Response.cpp\
 	Request.cpp\
 	CGIHandler.cpp\

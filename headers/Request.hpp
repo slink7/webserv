@@ -10,8 +10,9 @@ namespace HTTP {
 
 	public:
 		Request();
+		Request(const std::string& str);
 
-		void		Receive(int fd);
+		void		LoadFromString(const std::string& str);
 		Method		GetMethod() const;
 		const std::string&	GetTarget() const;
 

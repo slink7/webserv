@@ -6,25 +6,32 @@ HTTP::Request::Request() :
 	target()
 {}
 
-void HTTP::Request::Receive(int fd) {
-	std::string raw;
+HTTP::Request::Request(const std::string &str) :
+	Message(),
+	method(UNDEFINED),
+	target()
+{
+	LoadFromString(str);
+}
 
-	FT::receive(fd, raw);
-	FT::replace(raw, "\r\n", "\n");
+void HTTP::Request::LoadFromString(const std::string& raw) {
+
+	std::string str = raw;
+	FT::replace(str, "\r\n", "\n");
 	
 	int index = 0;
 
 	{
-		std::size_t end = raw.find_first_of('\n');
+		std::size_t end = str.find_first_of('\n');
 		if (end == std::string::npos){
 			Log::out(Log::WARNING) << "Warning: No newline in request\n";
 			return ;
 		}
-		start_line = raw.substr(0, end);
+		start_line = str.substr(0, end);
 		index = end + 1;
 	}
 	
-	std::size_t body_start = raw.find("\n\n", index) + 2;
+	std::size_t body_start = str.find("\n\n", index) + 2;
 	if (body_start == std::string::npos) {
 		Log::out(Log::WARNING) << "Warning: Missing empty line in request\n";
 		return ;
@@ -32,20 +39,20 @@ void HTTP::Request::Receive(int fd) {
 
 	{
 		while (true) {
-			std::size_t name_end = raw.find_first_of(':', index);
-			std::size_t value_begin = raw.find_first_not_of(' ', name_end + 1);
-			std::size_t newline = raw.find_first_of('\n', index);
+			std::size_t name_end = str.find_first_of(':', index);
+			std::size_t value_begin = str.find_first_not_of(' ', name_end + 1);
+			std::size_t newline = str.find_first_of('\n', index);
 			if (newline + 2 >= body_start)
 				break ;
 			if (newline <= name_end)
 				continue ;
-			AddHeader(raw.substr(index, name_end - index), raw.substr(value_begin, newline - value_begin));
+			AddHeader(str.substr(index, name_end - index), str.substr(value_begin, newline - value_begin));
 			index = newline + 1;
 		}
 	}
 
 	{
-		body = raw.substr(body_start);
+		body = str.substr(body_start);
 	}
 
 	{

@@ -119,7 +119,8 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 
 	if (it->revents & POLLOUT) {
 		
-
+		HTTP::Request req(requests[it->fd]);
+		req.Print();
 
 		HTTP::Response res;
 		res.SetError(404);
@@ -153,7 +154,7 @@ void Proxy::Run() {
 
 		for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end();) {
 			if (it->fd == -1)
-				fds.erase(it);
+				it = fds.erase(it);
 			else
 				it++;
 		}
