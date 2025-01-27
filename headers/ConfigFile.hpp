@@ -5,17 +5,20 @@
 #include <map>
 #include <vector>
 
+
+#include "CGI.hpp"
+#include "Method.hpp"
+
 // #include "Config.hpp"
 
 struct Location {
-    std::string					path;                 // Chemin de la location
-    std::string					root;                 // Racine pour cette location
-    std::string					index;                // Page d'index
-    std::vector<std::string>	methods; // Méthodes HTTP autorisées
+    std::string					path;
+    std::string					root;
+    std::string					index;
+    std::vector<HTTP::Method>	methods;
 };
 
 class Config {
-	std::vector<int>			ports;
 	std::string					host;
 	std::string					server_name;
 	std::string					root;
@@ -23,7 +26,13 @@ class Config {
 	unsigned long				max_body_length;
 	std::map<int, std::string>	error_pages;
 	std::vector<Location>		locations;
+	HTTP::CGI					cgi;
 };
+
+class ConfigGroup {
+	std::vector<Config> configs;
+	unsigned short		port;
+}
 
 class ConfigFile {
 
@@ -34,7 +43,8 @@ public:
 	bool	LoadFromFile(const std::string& path);
 
 private:
-	std::map<unsigned short, std::vector<Config>> configs;
+
+	std::vector<ConfigGroup> groups;
 };
 
 #endif
