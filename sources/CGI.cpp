@@ -1,8 +1,8 @@
-#include "CGIHandler.hpp"
+#include "CGI.hpp"
 
-bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
+bool	HTTP::CGI::Handle(const HTTP::Request& req, int fd) const {
 	std::string path = req.GetTarget().substr(1);
-	std::map<std::string, std::string>::const_iterator it = get_iterator(path);
+	std::map<std::string, std::string>::const_iterator it = GetIterator(path);
 	if (it == cgis.end()) {
 		Log::out(Log::DEBUG) << path << " is not handled by CGIs\n";
 		return (false);
@@ -80,11 +80,11 @@ bool	CGIHandler::handle(const HTTP::Request& req, int fd) const {
 	return (true);
 }
 
-void	CGIHandler::add(const std::string& extension, const std::string& executable_path) {
+void	HTTP::CGI::Add(const std::string& extension, const std::string& executable_path) {
 	cgis[extension] = executable_path;
 }
 
-std::map<std::string, std::string>::const_iterator	CGIHandler::get_iterator(const std::string& path) const {
+std::map<std::string, std::string>::const_iterator	HTTP::CGI::GetIterator(const std::string& path) const {
 	std::size_t	index = path.find_last_of('.');
 	if (index == std::string::npos)
 		return (cgis.end());

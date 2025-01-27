@@ -13,7 +13,7 @@ SRC = \
 	Message.cpp\
 	Response.cpp\
 	Request.cpp\
-	CGIHandler.cpp\
+	CGI.cpp\
 	Error.cpp\
 	Proxy.cpp
 

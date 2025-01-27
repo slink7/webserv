@@ -10,7 +10,7 @@
 #include "FT.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
-#include "CGIHandler.hpp"
+#include "CGI.hpp"
 #include "Log.hpp"
 #include "Error.hpp"
 
@@ -33,7 +33,7 @@ private:
 	bool				running;
 	Socket				socket;
 	CompactList<pollfd>	fds;
-	CGIHandler			cgi;
+	CGI			cgi;
 
 	bool	handle_event(pollfd& fd);
 	void	handle_request(HTTP::Request& req, int fd);
