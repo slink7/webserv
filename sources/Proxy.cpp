@@ -6,7 +6,15 @@ Proxy::Proxy() {
 	fds.reserve(max_fds_count);
 }
 
-bool Proxy::AddServer(const Config &config) {
+bool Proxy::AddGroup(ConfigGroup &config)
+{
+	for (std::vector<unsigned short>::iterator it = config.port.begin(); it != config.port.end(); it++)
+		if (!AddSocket(config, *it))
+			return (false);
+	return (true);
+}
+
+bool Proxy::AddSocket(ConfigGroup &group, unsigned short port) {
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd < 0) {
 		Log::out(Log::FUNCTION) << "socket() failed: " << strerror(errno) << "\n";
@@ -22,7 +30,7 @@ bool Proxy::AddServer(const Config &config) {
 	struct sockaddr_in	addr;
 	std::memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(config.port);
+	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = 0;
 
 	if (bind(fd, (const struct sockaddr*)&addr, sizeof(addr)) < 0) {
@@ -37,8 +45,8 @@ bool Proxy::AddServer(const Config &config) {
 		return (false);
 	}
 
-	Log::out(Log::INFO) << "Openned socket on port " << config.port << "\n";
-	configs[fd] = config;
+	Log::out(Log::INFO) << "Openned socket on port " << port << "\n";
+	configs[fd] = &group;
 	sockets.push_back(fd);
 	return (true);
 }

@@ -2,7 +2,7 @@
 #define REQUEST_HPP
 
 #include "Message.hpp"
-#include "Methods.hpp"
+#include "Method.hpp"
 #include "FT.hpp"
 
 namespace HTTP {

@@ -15,17 +15,15 @@
 #include "Response.hpp"
 #include "Log.hpp"
 #include "FT.hpp"
-
-struct Config {
-	unsigned short port;
-};
+#include "ConfigGroup.hpp"
 
 class Proxy {
 
 public:
 	Proxy();
 
-	bool							AddServer(const Config& config);
+	bool							AddGroup(ConfigGroup& config);
+	bool							AddSocket(ConfigGroup& config, unsigned short port);
 	void							AddFD(int fd, int events);
 	void							AddSocketsToPoll();
 	std::vector<pollfd>::iterator	RemoveClient(std::vector<pollfd>::iterator it);
@@ -37,7 +35,7 @@ public:
 private:
 	static const int			max_fds_count;
 
-	std::map<int, Config>		configs;
+	std::map<int, ConfigGroup*>	configs;
 	std::vector<int>			sockets;
 	std::vector<pollfd>			fds;
 	std::map<int, int>			parents;

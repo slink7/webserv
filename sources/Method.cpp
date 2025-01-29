@@ -1,4 +1,4 @@
-#include "Methods.hpp"
+#include "Method.hpp"
 
 HTTP::Method HTTP::EvaluateMethod(const std::string &str) {
 	static const int method_count = 3;

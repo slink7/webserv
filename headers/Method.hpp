@@ -1,5 +1,5 @@
-#ifndef METHODS_HPP
-#define METHODS_HPP
+#ifndef METHOD_HPP
+#define METHOD_HPP
 
 #include <string>
 
