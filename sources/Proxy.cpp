@@ -52,8 +52,10 @@ bool Proxy::AddSocket(ConfigGroup &group, unsigned short port) {
 }
 
 void Proxy::AddFD(int fd, int events) {
-	if (fds.size() >= max_fds_count)
+	if (fds.size() >= max_fds_count) {
+		Log::out(Log::WARNING) << "Can't add more fd to Proxy (" << fds.size() << "/" << max_fds_count << ")\n";
 		return ;
+	}
 	struct pollfd temp;
 	std::memset(&temp, 0, sizeof(pollfd));
 	temp.fd = fd;
