@@ -6,10 +6,9 @@ COMPILER = c++
 
 SRC_DIR = sources
 SRC = \
-	Methods.cpp\
+	Method.cpp\
 	main.cpp\
 	FT.cpp\
-	Socket.cpp\
 	Message.cpp\
 	Response.cpp\
 	Request.cpp\

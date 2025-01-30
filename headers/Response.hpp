@@ -9,6 +9,8 @@
 #include "Request.hpp"
 #include "Error.hpp"
 #include "Log.hpp"
+#include "ConfigGroup.hpp"
+#include "Config.hpp"
 
 namespace HTTP {
 
@@ -16,12 +18,12 @@ namespace HTTP {
 	
 	public:
 		Response();
-		Response(const HTTP::Request& req);
+		Response(const HTTP::Request& req, const Config& conf);
 
 		void		SetStatus(const std::string& status);
 		void		SetBodyRaw(const std::string& body);
 		bool		SetBodyFromFile(const std::string& path);
-		void		LoadFromRequest(const HTTP::Request& req);
+		void		LoadFromRequest(const HTTP::Request& req, const Config& conf);
 		void		Send(int fd) const;
 		void		ReadCGI(int fd);
 		void		SetError(int error_code);

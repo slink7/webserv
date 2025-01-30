@@ -134,7 +134,7 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 		Log::out(Log::DEBUG) << it->fd << " responding to: \n";
 		req.Print(HTTP::Message::ALL);
 
-		HTTP::Response res(req);
+		HTTP::Response res(req, configs[it->fd]->GetConfig(req));
 		res.Send(it->fd);
 		
 		Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";

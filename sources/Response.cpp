@@ -6,10 +6,10 @@ HTTP::Response::Response() :
 	Message()
 {}
 
-HTTP::Response::Response(const HTTP::Request &req) :
+HTTP::Response::Response(const HTTP::Request &req, const Config& conf) :
 	Message()
 {
-	LoadFromRequest(req);
+	LoadFromRequest(req, conf);
 }
 
 void HTTP::Response::SetStatus(const std::string &status) {
@@ -32,7 +32,7 @@ bool HTTP::Response::SetBodyFromFile(const std::string &path) {
 	return (true);
 }
 
-void HTTP::Response::LoadFromRequest(const HTTP::Request &req) {
+void HTTP::Response::LoadFromRequest(const HTTP::Request &req, const Config& conf) {
 	if (req.GetMethod() == HTTP::UNDEFINED) {
 		SetError(500);
 	} else if (req.GetMethod() == HTTP::INVALID) {
@@ -46,6 +46,8 @@ void HTTP::Response::LoadFromRequest(const HTTP::Request &req) {
 	} else {
 		SetError(404);
 	}
+
+	AddHeader("Server", conf.server_name);
 }
 
 void HTTP::Response::Send(int fd) const {

@@ -8,7 +8,7 @@
 #include "Location.hpp"
 #include "CGI.hpp"
 
-class Config {
+struct Config {
 	std::string					host;
 	std::string					server_name;
 	std::string					root;
