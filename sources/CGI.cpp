@@ -1,5 +1,7 @@
 #include "CGI.hpp"
 
+#include "Response.hpp"
+
 bool	HTTP::CGI::Handle(const HTTP::Request& req, int fd) const {
 	std::string path = req.GetTarget().substr(1);
 	std::map<std::string, std::string>::const_iterator it = GetIterator(path);

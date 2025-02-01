@@ -29,8 +29,12 @@ int	main() {
 
 		c.locations.push_back(l);
 
-		cg.configs.push_back(Config());
+		std::cout << "Adding group\n";
+		cg.configs.push_back(c);
 		
+		HTTP::Request req = HTTP::Request();
+		cg.GetConfig(req);
+
 		Proxy p;
 		p.AddGroup(cg);
 		p.AddFD(0, POLLIN);

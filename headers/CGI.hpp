@@ -11,11 +11,13 @@
 #include <cerrno>
 #include <stdlib.h>
 
-#include "Response.hpp"
 #include "Request.hpp"
 #include "FT.hpp"
 
 namespace HTTP {
+
+	class Response;
+
 	class CGI {
 
 	public:

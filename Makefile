@@ -14,7 +14,9 @@ SRC = \
 	Request.cpp\
 	CGI.cpp\
 	Error.cpp\
-	Proxy.cpp
+	Proxy.cpp\
+	ConfigGroup.cpp\
+
 
 CFLAGS = -Wall -Werror -Wextra -g3 -std=c++98
 LFLAGS =

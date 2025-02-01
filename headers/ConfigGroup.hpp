@@ -6,9 +6,12 @@
 #include "Config.hpp"
 #include "Request.hpp"
 
-struct ConfigGroup {
+class ConfigGroup {
+public:
 	std::vector<Config>			configs;
 	std::vector<unsigned short>	port;
+
+	ConfigGroup();
 
 	const Config&	GetConfig(HTTP::Request& req) const;
 };
