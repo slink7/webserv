@@ -132,9 +132,9 @@ bool Proxy::HandleEvent(std::vector<pollfd>::iterator& it) {
 		
 		HTTP::Request req(requests[it->fd]);
 		Log::out(Log::DEBUG) << it->fd << " responding to: \n";
-		req.Print(HTTP::Message::ALL);
+		req.Print(HTTP::Message::START_LINE);
 
-		HTTP::Response res(req, configs[parents[it->fd]]->GetConfig(req));
+		HTTP::Response res(req, &configs[parents[it->fd]]->GetConfig(req));
 		res.Send(it->fd);
 		
 		Log::out(Log::DEBUG) << "Removing fd " << it->fd << "\n";

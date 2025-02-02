@@ -9,7 +9,7 @@ int	main() {
 	
 	// Log::SetLevel((Log::Level)0);
 
-	try {
+	// try {
 		ConfigGroup cg;
 
 		cg.port.push_back(8080);
@@ -39,8 +39,8 @@ int	main() {
 		p.AddGroup(cg);
 		p.AddFD(0, POLLIN);
 		p.Run();
-	} catch (std::exception& e) {
-		Log::out(Log::ERROR) << "Exception: " << e.what() << "\n";
-	}
+	// } catch (std::exception& e) {
+	// 	Log::out(Log::ERROR) << "Exception: " << e.what() << "\n";
+	// }
 	
 }

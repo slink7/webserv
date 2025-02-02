@@ -17,6 +17,9 @@ struct Config {
 	std::map<int, std::string>	error_pages;
 	std::vector<Location>		locations;
 	HTTP::CGI					cgi;
+
+	std::string	EvaluateRoute(const std::string& path) const;
+	std::string EvaluateTargetFile(const std::string& path) const;
 };
 
 #endif

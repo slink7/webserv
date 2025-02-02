@@ -2,7 +2,7 @@
 
 #include "Response.hpp"
 
-bool	HTTP::CGI::Handle(const HTTP::Request& req, int fd) const {
+bool	HTTP::CGI::Handle(const HTTP::Request& req, Config const* conf, int fd) const {
 	std::string path = req.GetTarget().substr(1);
 	std::map<std::string, std::string>::const_iterator it = GetIterator(path);
 	if (it == cgis.end()) {
@@ -62,7 +62,7 @@ bool	HTTP::CGI::Handle(const HTTP::Request& req, int fd) const {
 			Log::out(Log::FUNCTION) << "waitpid() failed: " << strerror(errno) << "\n";
 		Log::out(Log::DEBUG) << "Execve exited with code " << status << "\n"; 
 
-		HTTP::Response rep;
+		HTTP::Response rep(conf);
 		rep.ReadCGI(ends[0]);
 		close(ends[0]);
 

@@ -14,6 +14,8 @@
 #include "Request.hpp"
 #include "FT.hpp"
 
+class Config;
+
 namespace HTTP {
 
 	class Response;
@@ -21,7 +23,7 @@ namespace HTTP {
 	class CGI {
 
 	public:
-		bool	Handle(const HTTP::Request& req, int fd) const;
+		bool	Handle(const HTTP::Request& req, Config const* conf, int fd) const;
 		void	Add(const std::string& extension, const std::string& executable_path);
 
 	private:

@@ -2,14 +2,21 @@
 
 std::map<int, Error> HTTP::Response::error_list;
 
-HTTP::Response::Response() :
-	Message()
+// HTTP::Response::Response() :
+// 	Message(),
+// 	conf(Config())
+// {}
+
+HTTP::Response::Response(Config const* conf) :
+	Message(),
+	conf(conf)
 {}
 
-HTTP::Response::Response(const HTTP::Request &req, const Config& conf) :
-	Message()
+HTTP::Response::Response(const HTTP::Request &req, Config const* conf) : 
+	Message(),
+	conf(conf)
 {
-	LoadFromRequest(req, conf);
+	LoadFromRequest(req);
 }
 
 void HTTP::Response::SetStatus(const std::string &status) {
@@ -21,10 +28,15 @@ void HTTP::Response::SetBodyRaw(const std::string &body) {
 }
 
 bool HTTP::Response::SetBodyFromFile(const std::string &path) {
+	if (FT::is_directory(path)) {
+		Log::out(Log::ERROR) << "Tried to open a directory : \"" << path << "\"\n";
+		return (false);
+	}
+	
 	std::ifstream file(path.c_str());
 
 	if (!file.is_open()) {
-		Log::out(Log::WARNING) << "File \"" << path << "\" couldn't be oppenned\n";
+		Log::out(Log::WARNING) << "File \"" << path << "\" couldn't be openned\n";
 		return (false);
 	}
 
@@ -32,22 +44,24 @@ bool HTTP::Response::SetBodyFromFile(const std::string &path) {
 	return (true);
 }
 
-void HTTP::Response::LoadFromRequest(const HTTP::Request &req, const Config& conf) {
+void HTTP::Response::LoadFromRequest(const HTTP::Request &req) {
+	std::string actual_target = conf->EvaluateRoute(req.GetTarget().substr(1));
+	Log::out(Log::DEBUG) << "Target: " << req.GetTarget().substr(1) << "\nActual: " << actual_target << "\n";
+
 	if (req.GetMethod() == HTTP::UNDEFINED) {
 		SetError(500);
 	} else if (req.GetMethod() == HTTP::INVALID) {
 		SetError(501);
-	} else if (FT::is_directory(req.GetTarget().substr(1))) {
-		SetError(403);
-	} else if (SetBodyFromFile(req.GetTarget().substr(1))) {
+	} else if (SetBodyFromFile(actual_target)) {
 		SetStatus("200 OK");
-		AddHeader("Content-Type", FT::get_mime_type(req.GetTarget()));
+		AddHeader("Content-Type", FT::get_mime_type(actual_target));
 		AddHeader("Content-Length", FT::itoa(GetBody().size()));
 	} else {
 		SetError(404);
 	}
 
-	AddHeader("Server", conf.server_name);
+	AddHeader("Server", conf->server_name);
+	AddHeader("Served", actual_target);
 }
 
 void HTTP::Response::Send(int fd) const {

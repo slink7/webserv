@@ -104,7 +104,10 @@ const std::string& FT::get_mime_type(const std::string& file) {
         {".pdf", "application/pdf"}
     };
 
-	std::string extension = file.substr(file.find_last_of('.'));
+	std::size_t ext_pos = file.find_last_of('.');
+	if (ext_pos == std::string::npos)
+		return (def);
+	std::string extension = file.substr(ext_pos);
 
 	for (int k = 0; k < type_count; k++)
 		if (!mime_types[k][0].compare(extension))
