@@ -1,21 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   ConfigFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/23 15:23:01 by ellehmim          #+#    #+#             */
-/*   Updated: 2024/12/24 20:38:58 by ellehmim         ###   ########.fr       */
+/*   Created: 2025/01/30 14:49:38 by ellehmim          #+#    #+#             */
+/*   Updated: 2025/02/02 11:28:21 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
- #include <fstream>
-#include <string>
-#include "server.hpp"
+#include "../headers/ConfigFile.hpp"
+#include "../headers/ConfigGroup.hpp"
 
-std::string readFileToString(const std::string& filePath)
+
+ConfigFile::ConfigFile()
+{
+    this-> _content = readFileToString("../configs/test.conf");
+    startconfig(_content);
+}
+
+ConfigFile::~ConfigFile() {}
+
+std::string ConfigFile::readFileToString(const std::string& filePath)
 {
     std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary); 
     if (!file)
@@ -47,9 +54,9 @@ std::string *splitserv(std::string &content)
 {
     int c = multiserv(content);
     int i = 0;
-    size_t start = 0;
     std::string* tab = new std::string[c];
     std::string word = "server ";
+    size_t start = content.find(word, 0);
     while (i < c) 
     {
         size_t end = content.find(word, start + word.length());
@@ -66,43 +73,45 @@ std::string *splitserv(std::string &content)
     return tab;
 }
 
-int main()
+void    check_config(std::string _content)
 {
-    try
+    int c = 0;
+    int cc = 0;
+    std::string word = "{";
+    size_t pos = _content.find(word);
+    if (pos != std::string::npos)
     {
-        std::string content = readFileToString("server.conf");
-        int t = multiserv(content);
-        if (t > 1)
+        while (pos != std::string::npos)
         {
-            std::string *tab = splitserv(content);
-            Server* horde = new Server[t];
-            for(int i = 0; i < t; i++)
-            {
-                horde[i] = Server(tab[i]);
-                horde[i].printconfig();
-                horde[i].parsing();
-            }
-            delete[] tab;
-            delete[] horde;
-        }
-        else if (t == 1)
-        {
-            Server server(content);
-            server.printconfig();
-            server.parsing();
+            c++;
+            pos = _content.find(word, pos + word.length());
         }
     }
-    catch (const std::exception& e) {
-        std::cerr << "Erreur : " << e.what() << std::endl;
+    else
+        throw std::runtime_error("block architecture not respected");
+    word = "}";
+    pos = _content.find(word);
+    if (pos != std::string::npos)
+    {
+        while (pos != std::string::npos)
+        {
+            cc++;
+            pos = _content.find(word, pos + word.length());
+        }
     }
-    return 0;
+    else
+        throw std::runtime_error("block architecture not respected");
+    if (c != cc)
+        throw std::runtime_error("block architecture not respected");
 }
-/*
-    -L'utilisation de istreambuf_iterator permet de lire rapidement et efficacement tout un fichier, même s'il est volumineux.
-    -std::ifstream file(filePath, std::ios::in | std::ios::binary);
-        Ouvre le file en binaire pour eviter toute transformation.
-    -std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        Début : std::istreambuf_iterator<char>(file) pointe sur le début des données du flux.
-        Fin : std::istreambuf_iterator<char>() est un itérateur spécial "fin de flux", qui marque la fin du fichier.
-        Ces itérateurs permettent de lire tout le contenu du fichier en une seule ligne.
-*/
+
+void ConfigFile::startconfig(std::string _content)
+{
+    check_config(_content);
+    int c = multiserv(_content);
+    if (c == 0)
+        throw std::runtime_error("no Server block in config file");
+    std::string *tab = splitserv(_content);
+    ConfigGroup ConfigGroup(tab, c);
+    delete[] tab;
+}

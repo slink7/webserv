@@ -1,4 +1,16 @@
-#include "CGI.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   CGI.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/02 10:04:14 by ellehmim          #+#    #+#             */
+/*   Updated: 2025/02/02 10:04:30 by ellehmim         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../headers/CGI.hpp"
 
 bool	HTTP::CGI::Handle(const HTTP::Request& req, int fd) const {
 	std::string path = req.GetTarget().substr(1);
