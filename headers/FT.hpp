@@ -33,6 +33,9 @@ namespace FT {
 	const std::string& get_mime_type(const std::string& file);
 
 	void	replace(std::string& str, const char *from, const char *to);
+
+	void	trim(std::string& str, const std::string& set);
+
 }
 
 #endif

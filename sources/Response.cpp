@@ -12,6 +12,7 @@ HTTP::Response::Response(Config const* conf) :
 	conf(conf)
 {}
 
+
 HTTP::Response::Response(const HTTP::Request &req, Config const* conf) : 
 	Message(),
 	conf(conf)
@@ -19,13 +20,16 @@ HTTP::Response::Response(const HTTP::Request &req, Config const* conf) :
 	LoadFromRequest(req);
 }
 
+
 void HTTP::Response::SetStatus(const std::string &status) {
 	start_line = "HTTP/1.1 " + status;
 }
 
+
 void HTTP::Response::SetBodyRaw(const std::string &body) {
 	this->body = body;
 }
+
 
 bool HTTP::Response::SetBodyFromFile(const std::string &path) {
 	if (FT::is_directory(path)) {
@@ -44,25 +48,38 @@ bool HTTP::Response::SetBodyFromFile(const std::string &path) {
 	return (true);
 }
 
-void HTTP::Response::LoadFromRequest(const HTTP::Request &req) {
-	std::string actual_target = conf->EvaluateRoute(req.GetTarget().substr(1));
-	Log::out(Log::DEBUG) << "Target: " << req.GetTarget().substr(1) << "\nActual: " << actual_target << "\n";
 
+void HTTP::Response::LoadFromRequest(const HTTP::Request &req) {
+	if (req.GetTarget().size() < 1) {
+		Log::out(Log::ERROR) << "Empty Target, skipping request\n";
+		SetError(500);
+		return ;
+	}
+	
 	if (req.GetMethod() == HTTP::UNDEFINED) {
 		SetError(500);
 	} else if (req.GetMethod() == HTTP::INVALID) {
 		SetError(501);
-	} else if (SetBodyFromFile(actual_target)) {
+	}
+	
+	Log::out(Log::DEBUG) << "Raw target: \"" << req.GetTarget() << "\" (" << req.GetTarget().size() << ")\n";
+	std::string actual_target = conf->EvaluateRoute(req);
+	Log::out(Log::DEBUG) << "Target: " << req.GetTarget() << "\nActual: " << actual_target << "\n";
+
+	if (FT::is_file(actual_target) && SetBodyFromFile(actual_target)) {
 		SetStatus("200 OK");
 		AddHeader("Content-Type", FT::get_mime_type(actual_target));
 		AddHeader("Content-Length", FT::itoa(GetBody().size()));
-	} else {
+	} else if (FT::is_directory(actual_target)) {
+		SetError(403);
+	} else
 		SetError(404);
-	}
 
+	Log::out(Log::DEBUG) << "Response: " << start_line << "\n";
 	AddHeader("Server", conf->server_name);
 	AddHeader("Served", actual_target);
 }
+
 
 void HTTP::Response::Send(int fd) const {
 	std::ostringstream buffer;
@@ -76,6 +93,7 @@ void HTTP::Response::Send(int fd) const {
 	std::string f = buffer.str();
 	FT::send(fd, f);
 }
+
 
 void HTTP::Response::ReadCGI(int fd) {
 	std::string raw;
@@ -125,6 +143,7 @@ void HTTP::Response::ReadCGI(int fd) {
 	body = raw.substr(body_start);
 }
 
+
 void HTTP::Response::SetError(int error_code) {
 	std::map<int, Error>::iterator it = error_list.find(error_code);
 
@@ -152,18 +171,19 @@ void HTTP::Response::SetError(int error_code) {
 	AddHeader("Content-Length", FT::itoa(body.size()));
 }
 
+
 void HTTP::Response::InitErrorList() {
-	error_list[400] = Error(400, "Bad Request", "site/errors/400.html", "");
-	error_list[401] = Error(401, "Unauthorized", "site/errors/401.html", "");
-	error_list[402] = Error(402, "Payment Required", "site/errors/402.html", "");
-	error_list[403] = Error(403, "Forbidden", "site/errors/403.html", "");
-	error_list[404] = Error(404, "Not Found", "site/errors/404.html", "");
-	error_list[405] = Error(405, "Method Not Allowed", "site/errors/405.html", "");
-	error_list[406] = Error(406, "Not Acceptable", "site/errors/406.html", "");
-	error_list[500] = Error(500, "Internal Server Error", "site/errors/500.html", "");
-	error_list[501] = Error(501, "Not Implemented", "site/errors/501.html", "");
-	error_list[502] = Error(502, "Bad Gateway", "site/errors/502.html", "");
-	error_list[503] = Error(503, "Service Unavailable", "site/errors/503.html", "");
-	error_list[504] = Error(504, "Gateway Timeout", "site/errors/504.html", "");
-	error_list[505] = Error(505, "HTTP Version Not Supported", "site/errors/505.html", "");
+	error_list[400] = Error(400, "Bad Request", "var/www/errors/400.html", "");
+	error_list[401] = Error(401, "Unauthorized", "var/www/errors/401.html", "");
+	error_list[402] = Error(402, "Payment Required", "var/www/errors/402.html", "");
+	error_list[403] = Error(403, "Forbidden", "var/www/errors/403.html", "");
+	error_list[404] = Error(404, "Not Found", "var/www/errors/404.html", "");
+	error_list[405] = Error(405, "Method Not Allowed", "var/www/errors/405.html", "");
+	error_list[406] = Error(406, "Not Acceptable", "var/www/errors/406.html", "");
+	error_list[500] = Error(500, "Internal Server Error", "var/www/errors/500.html", "");
+	error_list[501] = Error(501, "Not Implemented", "var/www/errors/501.html", "");
+	error_list[502] = Error(502, "Bad Gateway", "var/www/errors/502.html", "");
+	error_list[503] = Error(503, "Service Unavailable", "var/www/errors/503.html", "");
+	error_list[504] = Error(504, "Gateway Timeout", "var/www/errors/504.html", "");
+	error_list[505] = Error(505, "HTTP Version Not Supported", "var/www/errors/505.html", "");
 }

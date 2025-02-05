@@ -121,3 +121,13 @@ void FT::replace(std::string &str, const char *from, const char *to) {
 		str.replace(pos, std::strlen(from), to);
 	}
 }
+
+void FT::trim(std::string &str, const std::string &set) {
+	std::size_t start = str.find_first_not_of(set);
+	if (start == std::string::npos)
+		return ;
+	std::size_t end = str.find_last_not_of(set);
+	if (end == std::string::npos)
+		return ;
+	str = str.substr(start, end);
+}

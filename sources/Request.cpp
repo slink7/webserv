@@ -65,6 +65,7 @@ void HTTP::Request::LoadFromString(const std::string& raw) {
 		int begin = start_line.find_first_of(' ') + 1;
 		int end = start_line.find_last_of(' ');
 		target = start_line.substr(begin, end - begin);
+		FT::trim(target, " \t/");
 	}
 }
 
