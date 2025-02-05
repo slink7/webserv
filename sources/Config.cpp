@@ -6,7 +6,7 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 12:04:57 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/04 16:34:11 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/05 18:03:44 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,14 +92,20 @@ std::vector<unsigned short> porthandler(const std::string& src)
         if (end != std::string::npos)
         {
             buff = src.substr(start, end - start);
-            ports.push_back(std::atoi(buff.c_str()));
+            if(std::atoi(buff.c_str()) < 0 || std::atoi(buff.c_str()) > 65535)
+                std::cout << "port " << buff << " unvalid" << std::endl;
+            else
+                ports.push_back(std::atoi(buff.c_str()));
         }
         else
-            {
-                buff = src.substr(start);
+        {
+            buff = src.substr(start);
+            if(std::atoi(buff.c_str()) < 0 || std::atoi(buff.c_str()) > 65535)
+                std::cout << "port " << buff << " unvalid" << std::endl;
+            else
                 ports.push_back(std::atoi(buff.c_str()));
-                break; 
-            } 
+            break; 
+        } 
         start = src.find(word, end);
     }
     return ports;

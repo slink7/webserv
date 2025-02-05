@@ -6,7 +6,7 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 14:49:38 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/04 16:57:39 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/05 17:46:45 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,18 +110,11 @@ void ConfigFile::startconfig(std::string _content)
     std::string buff;
     for(int i = 0; i < c; i++)
         config_list.push_back(Config(tab[i]));
+    delete[] tab;
     for (std::vector<Config>::iterator it = config_list.begin(); it != config_list.end(); ++it)
     {
         std::vector <unsigned short>& temp = it->get_port();
         for (std::vector<unsigned short>::iterator at = temp.begin(); at != temp.end(); ++at)
-            {
                 port_config[*at].configs.push_back(&(*it));
-            }
     }
-    for (std::map<unsigned short, ConfigGroup>::iterator it = port_config.begin(); it != port_config.end(); ++it)
-    {
-        std::cout << it->first << std::endl;
-        it->second.print();
-    }
-    delete[] tab; 
 }
