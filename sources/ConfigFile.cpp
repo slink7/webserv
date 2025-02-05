@@ -6,13 +6,13 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 14:49:38 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/02 11:28:21 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/04 16:57:39 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/ConfigFile.hpp"
 #include "../headers/ConfigGroup.hpp"
-
+#include "../headers/Config.hpp"
 
 ConfigFile::ConfigFile()
 {
@@ -37,22 +37,16 @@ int multiserv(std::string content)
     int c = 0;
     std::string word = "server ";
     size_t pos = content.find(word);
-    if (pos != std::string::npos)
+    while (pos != std::string::npos)
     {
-        while (pos != std::string::npos)
-        {
-            c++;
-            pos = content.find(word, pos + word.length());
-        }
+        c++;
+        pos = content.find(word, pos + word.length());
     }
-    else
-        return 0;
     return c;
 }
 
-std::string *splitserv(std::string &content)
+std::string *splitserv(std::string &content, int c)
 {
-    int c = multiserv(content);
     int i = 0;
     std::string* tab = new std::string[c];
     std::string word = "server ";
@@ -111,7 +105,23 @@ void ConfigFile::startconfig(std::string _content)
     int c = multiserv(_content);
     if (c == 0)
         throw std::runtime_error("no Server block in config file");
-    std::string *tab = splitserv(_content);
-    ConfigGroup ConfigGroup(tab, c);
-    delete[] tab;
+    std::string *tab = splitserv(_content, c);
+    std::string word = "listen ";
+    std::string buff;
+    for(int i = 0; i < c; i++)
+        config_list.push_back(Config(tab[i]));
+    for (std::vector<Config>::iterator it = config_list.begin(); it != config_list.end(); ++it)
+    {
+        std::vector <unsigned short>& temp = it->get_port();
+        for (std::vector<unsigned short>::iterator at = temp.begin(); at != temp.end(); ++at)
+            {
+                port_config[*at].configs.push_back(&(*it));
+            }
+    }
+    for (std::map<unsigned short, ConfigGroup>::iterator it = port_config.begin(); it != port_config.end(); ++it)
+    {
+        std::cout << it->first << std::endl;
+        it->second.print();
+    }
+    delete[] tab; 
 }

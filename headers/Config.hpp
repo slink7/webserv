@@ -6,7 +6,7 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 11:27:19 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/01 11:27:22 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/05 09:41:31 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,14 @@
 #include <sstream>
 
 #include "Location.hpp"
-// #include "CGI.hpp"
+#include "CGI.hpp"
+#include "Method.hpp"
 
 class Config
 {
 	private :
 		std::string					_src;
+		std::vector<unsigned short>	ports;
 		std::string					host;
 		std::string					server_name;
 		std::string					root;
@@ -37,7 +39,7 @@ class Config
 		unsigned long				max_body_length;
 		std::map<int, std::string>	error_pages;
 		std::vector<Location>		locations;
-		// HTTP::CGI					cgi;
+		HTTP::CGI					cgi;
 	public :
 		Config(std::string& src);
 		Config();
@@ -45,6 +47,8 @@ class Config
 		std::string find_word(std::string word);
 		unsigned long find_wordint(std::string word);
 		void manageLocation(std::string _content);
+		std::string get_host();
+		std::vector<unsigned short>& get_port();
 };
 
 #endif

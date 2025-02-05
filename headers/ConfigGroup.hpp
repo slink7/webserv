@@ -6,7 +6,7 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 12:08:11 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/01/31 12:08:16 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/04 17:00:24 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,15 @@
 
 #include "Config.hpp"
 
+class ConfigGroup;
+
 class ConfigGroup
 {
-	private :
-		std::string 				*_tab;
-		int 						_size;
-		std::vector<Config>			configs;
-		std::vector<unsigned short>	port;
 	public :
-		ConfigGroup(std::string *tab, int c);
+		std::vector<Config*>			configs;
+		ConfigGroup();
 		~ConfigGroup();
-		// std::string *porthandler(std::string *tab, int size);
+		void print();
 };
 
 #endif

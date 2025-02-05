@@ -6,15 +6,15 @@
 #    By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/30 15:23:35 by ellehmim          #+#    #+#              #
-#    Updated: 2025/02/02 10:01:02 by ellehmim         ###   ########.fr        #
+#    Updated: 2025/02/05 09:41:14 by ellehmim         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = g++
 
-CFlag = -Wall -Wextra -Werror -std=c++98
+CFlag = -Wall -Wextra -Werror #-std=c++98
 
-SRC = main.cpp ConfigFile.cpp ConfigGroup.cpp Config.cpp Location.cpp
+SRC = main.cpp ConfigFile.cpp ConfigGroup.cpp Config.cpp Location.cpp Method.cpp
 OBJ = $(SRC:.cpp=.o)
 
 NAME = pars

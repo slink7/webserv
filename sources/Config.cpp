@@ -6,7 +6,7 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 12:04:57 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/02 09:58:50 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/04 16:34:11 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,45 @@ void Config::manageLocation(std::string _content)
     }
 }
 
+std::string Config::get_host()
+{
+    return this->host;
+}
+
+std::vector<unsigned short>& Config::get_port()
+{
+    return this->ports;
+}
+
+std::vector<unsigned short> porthandler(const std::string& src)
+{
+    std::string buff;
+    std::vector<unsigned short> ports;
+    const std::string word = "listen ";
+    size_t start = src.find(word, 0);
+    while (start != std::string::npos)
+    {
+        start += word.length();
+        size_t end = src.find(";", start);
+        if (end != std::string::npos)
+        {
+            buff = src.substr(start, end - start);
+            ports.push_back(std::atoi(buff.c_str()));
+        }
+        else
+            {
+                buff = src.substr(start);
+                ports.push_back(std::atoi(buff.c_str()));
+                break; 
+            } 
+        start = src.find(word, end);
+    }
+    return ports;
+}
+
 Config::Config(std::string& src): _src(src)
 {
+    ports = porthandler(_src);
     host = this->find_word("host ");
     server_name = this->find_word("server_name ");
     root = this->find_word("root ");

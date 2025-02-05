@@ -6,7 +6,7 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/02 10:05:59 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/02 10:06:00 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/04 17:00:44 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@
 
 #include "Log.hpp"
 
-namespace FT {
+namespace FT
+{
 	const int RECV_SIZE = 17;
 
 	int	send(int fd, std::string& msg, int len);

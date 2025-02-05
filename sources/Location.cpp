@@ -6,11 +6,12 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 06:25:59 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/02 09:59:16 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/05 09:50:37 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Location.hpp"
+#include "../headers/Method.hpp"
 
 std::string Location::find_word(std::string word)
 {
@@ -53,6 +54,10 @@ Location::Location(std::string& src): location_block(src)
     path = this->find_path("location ");
     root = this->find_word("root ");
     index = this->find_word("index ");
+    std::string method = find_word("methods ");
+    std::stringstream ss(method);
+    while (getline(ss, method, ' '))
+        methods.push_back(HTTP::EvaluateMethod(method));
 }
 
 Location::Location(const Location& other): location_block(other.location_block) {}

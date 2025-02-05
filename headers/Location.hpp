@@ -6,7 +6,7 @@
 /*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 11:27:47 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/01 11:39:05 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/04 17:00:52 by ellehmim         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 #include <fstream>
 #include <sstream>
 
-// #include "Method.hpp"
+#include "Method.hpp"
 
 struct Location
 {
@@ -32,7 +32,7 @@ struct Location
         std::string					path;
         std::string					root;
         std::string					index;
-        // std::vector<HTTP::Method>	methods;
+        std::vector<HTTP::Method>	methods;
     public:
         Location(std::string& src);
         Location(const Location& other);
