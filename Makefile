@@ -14,8 +14,10 @@ SRC = \
 	Request.cpp\
 	CGI.cpp\
 	Error.cpp\
+	Config.cpp\
 	Proxy.cpp\
 	ConfigGroup.cpp\
+	Location.cpp\
 
 
 CFLAGS = -Wall -Werror -Wextra -g3 -std=c++98
