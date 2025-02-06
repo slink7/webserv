@@ -129,5 +129,5 @@ void FT::trim(std::string &str, const std::string &set) {
 	std::size_t end = str.find_last_not_of(set);
 	if (end == std::string::npos)
 		return ;
-	str = str.substr(start, end);
+	str = str.substr(start, end - start + 1);
 }
