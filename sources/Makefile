@@ -3,18 +3,18 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+         #
+#    By: scambier <scambier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/30 15:23:35 by ellehmim          #+#    #+#              #
-#    Updated: 2025/02/05 09:41:14 by ellehmim         ###   ########.fr        #
+#    Updated: 2025/02/13 16:10:13 by scambier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = g++
 
-CFlag = -Wall -Wextra -Werror #-std=c++98
+CFlag = -Wall -Wextra -Werror -std=c++98 -g3 -I../headers/
 
-SRC = main.cpp ConfigFile.cpp ConfigGroup.cpp Config.cpp Location.cpp Method.cpp
+SRC = main.cpp ConfigFile.cpp ConfigGroup.cpp Config.cpp Location.cpp Method.cpp FT.cpp
 OBJ = $(SRC:.cpp=.o)
 
 NAME = pars

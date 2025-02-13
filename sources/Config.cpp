@@ -3,54 +3,81 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
+/*   By: scambier <scambier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 12:04:57 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/05 18:03:44 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:51:57 by scambier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/Config.hpp"
 #include "../headers/Location.hpp"
 
-std::string Config::find_word(std::string word)
-{
-    std::string res;
-    size_t start = _src.find(word);
-    if (start != std::string::npos)
+Config::Config () {}
+
+static std::vector<unsigned short> porthandler(const std::string& src) {
+    std::string buff;
+    std::vector<unsigned short> ports;
+    const std::string word = "listen ";
+    size_t start = src.find(word, 0);
+    while (start != std::string::npos)
     {
         start += word.length();
-        size_t end = _src.find(";", start);
+        size_t end = src.find(";", start);
         if (end != std::string::npos)
-            res = _src.substr(start, end - start);
+        {
+            buff = src.substr(start, end - start);
+            if(std::atoi(buff.c_str()) < 0 || std::atoi(buff.c_str()) > 65535)
+                Log::out(Log::ERROR) << "Port " << buff << " is unvalid!\n";
+            else
+                ports.push_back(std::atoi(buff.c_str()));
+        }
         else
-            return "";
+        {
+            buff = src.substr(start);
+            if(std::atoi(buff.c_str()) < 0 || std::atoi(buff.c_str()) > 65535)
+                Log::out(Log::ERROR) << "Port " << buff << " is unvalid!\n";
+            else
+                ports.push_back(std::atoi(buff.c_str()));
+            break; 
+        } 
+        start = src.find(word, end);
     }
-    else
-        return "";
-    return res;
+    return ports;
 }
 
-unsigned long Config::find_wordint(std::string word)
+Config::Config(std::string& src) :
+    host(FT::get_value(src, "host ")),
+    server_name(FT::get_value(src, "server_name ")),
+    root(FT::get_value(src, "root ")),
+    index(FT::get_value(src, "index ")),
+    max_body_length(FT::get_int(src, "client_max_body_size "))
 {
-    std::string res;
-    size_t start = _src.find(word);
-    if (start != std::string::npos)
+    ports = porthandler(src);
+    std::string word = "error_page ";
+    std::string buf;
+    std::string root_error;
+    std::string errornb;
+    size_t start = src.find(word);
+    while (start != std::string::npos)
     {
         start += word.length();
-        size_t end = _src.find(";", start);
+        size_t end = src.find(";", start);
         if (end != std::string::npos)
-            res = _src.substr(start, end - start);
-        else
-            return -1;
+        {
+            buf = src.substr(start, end - start);
+            std::stringstream ss(buf);
+            getline(ss, errornb, ' ') && (ss >> root_error);
+            error_pages[static_cast<int>(std::atoi(errornb.c_str()))] = root_error;
+            start = src.find(word, end);
+        }
     }
-    else
-        return -1;
-    return static_cast<unsigned long>(std::atoi(res.c_str()));
+    manageLocation(src);
 }
 
-void Config::manageLocation(std::string _content)
-{
+Config::~Config () {}
+
+void Config::manageLocation(std::string _content) {
     size_t start = 0;
     std::string location_block;
     std::string location_start = "location ";
@@ -69,76 +96,25 @@ void Config::manageLocation(std::string _content)
     }
 }
 
-std::string Config::get_host()
-{
-    return this->host;
+std::string& Config::get_host() {
+    return (host);
 }
 
-std::vector<unsigned short>& Config::get_port()
-{
-    return this->ports;
+std::vector<unsigned short>& Config::get_port() {
+    return (ports);
 }
 
-std::vector<unsigned short> porthandler(const std::string& src)
-{
-    std::string buff;
-    std::vector<unsigned short> ports;
-    const std::string word = "listen ";
-    size_t start = src.find(word, 0);
-    while (start != std::string::npos)
-    {
-        start += word.length();
-        size_t end = src.find(";", start);
-        if (end != std::string::npos)
-        {
-            buff = src.substr(start, end - start);
-            if(std::atoi(buff.c_str()) < 0 || std::atoi(buff.c_str()) > 65535)
-                std::cout << "port " << buff << " unvalid" << std::endl;
-            else
-                ports.push_back(std::atoi(buff.c_str()));
-        }
-        else
-        {
-            buff = src.substr(start);
-            if(std::atoi(buff.c_str()) < 0 || std::atoi(buff.c_str()) > 65535)
-                std::cout << "port " << buff << " unvalid" << std::endl;
-            else
-                ports.push_back(std::atoi(buff.c_str()));
-            break; 
-        } 
-        start = src.find(word, end);
-    }
-    return ports;
+void Config::Print() const {
+    std::cout << "Host: " << host << ".\n";
+    std::cout << "ServerName: " << server_name << ".\n";
+    std::cout << "Root: " << root << ".\n";
+    std::cout << "Index: " << index << ".\n";
+    std::cout << "Max_body_length: " << max_body_length << ".\n";
+    std::cout << "Error pages:\n";
+    for (std::map<int, std::string>::const_iterator it = error_pages.begin(); it != error_pages.end(); it++)
+        std::cout << "\t" << it->first << ":" << it->second << ".\n";
+    std::cout << "Ports: " << host << ".\n";
+    for (std::vector<unsigned short>::const_iterator it = ports.begin(); it != ports.end(); it++)
+        std::cout << "\t" << *it << "\n";
+    std::cout << "Location count: " << locations.size() << ".\n";
 }
-
-Config::Config(std::string& src): _src(src)
-{
-    ports = porthandler(_src);
-    host = this->find_word("host ");
-    server_name = this->find_word("server_name ");
-    root = this->find_word("root ");
-    index = this->find_word("index ");
-    max_body_length = this->find_wordint("client_max_body_size ");
-    std::string word = "error_page ";
-    std::string buf;
-    std::string root_error;
-    std::string errornb;
-    size_t start = _src.find(word);
-    while (start != std::string::npos)
-    {
-        start += word.length();
-        size_t end = _src.find(";", start);
-        if (end != std::string::npos)
-        {
-            buf = _src.substr(start, end - start);
-            std::stringstream ss(buf);
-            getline(ss, errornb, ' ') && (ss >> root_error);
-            error_pages[static_cast<int>(std::atoi(errornb.c_str()))] = root_error;
-            start = _src.find(word, end);
-        }
-    }
-    manageLocation(_src);
-}
-
-Config::Config () {}
-Config::~Config () {}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
+/*   By: scambier <scambier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/01 11:27:19 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/05 18:00:34 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:52:02 by scambier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@
 class Config
 {
 	private :
-		std::string					_src;
 		std::string					host;
 		std::string					server_name;
 		std::string					root;
@@ -41,14 +40,13 @@ class Config
 		std::vector<Location>		locations;
 		HTTP::CGI					cgi;
 	public :
-		Config(std::string& src);
 		Config();
+		Config(std::string& src);
 		~Config();
-		std::string find_word(std::string word);
-		unsigned long find_wordint(std::string word);
 		void manageLocation(std::string _content);
-		std::string get_host();
+		std::string& get_host();
 		std::vector<unsigned short>& get_port();
+		void	Print() const;
 };
 
 #endif

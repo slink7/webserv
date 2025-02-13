@@ -3,47 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFile.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
+/*   By: scambier <scambier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/30 14:49:38 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/05 17:46:45 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/13 16:07:11 by scambier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/ConfigFile.hpp"
 #include "../headers/ConfigGroup.hpp"
 #include "../headers/Config.hpp"
+// #include "ConfigFile.hpp"
 
-ConfigFile::ConfigFile()
-{
-    this-> _content = readFileToString("../configs/test.conf");
-    startconfig(_content);
+ConfigFile::ConfigFile(const std::string& path) {
+    LoadFromFile(path);
 }
 
 ConfigFile::~ConfigFile() {}
-
-std::string ConfigFile::readFileToString(const std::string& filePath)
-{
-    std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary); 
-    if (!file)
-        throw std::runtime_error("Impossible d'ouvrir le fichier : " + filePath);
-    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    file.close();
-    return content;
-}
-
-int multiserv(std::string content)
-{
-    int c = 0;
-    std::string word = "server ";
-    size_t pos = content.find(word);
-    while (pos != std::string::npos)
-    {
-        c++;
-        pos = content.find(word, pos + word.length());
-    }
-    return c;
-}
 
 std::string *splitserv(std::string &content, int c)
 {
@@ -67,30 +43,30 @@ std::string *splitserv(std::string &content, int c)
     return tab;
 }
 
-void    check_config(std::string _content)
+void    check_config(std::string content)
 {
     int c = 0;
     int cc = 0;
     std::string word = "{";
-    size_t pos = _content.find(word);
+    size_t pos = content.find(word);
     if (pos != std::string::npos)
     {
         while (pos != std::string::npos)
         {
             c++;
-            pos = _content.find(word, pos + word.length());
+            pos = content.find(word, pos + word.length());
         }
     }
     else
         throw std::runtime_error("block architecture not respected");
     word = "}";
-    pos = _content.find(word);
+    pos = content.find(word);
     if (pos != std::string::npos)
     {
         while (pos != std::string::npos)
         {
             cc++;
-            pos = _content.find(word, pos + word.length());
+            pos = content.find(word, pos + word.length());
         }
     }
     else
@@ -99,13 +75,13 @@ void    check_config(std::string _content)
         throw std::runtime_error("block architecture not respected");
 }
 
-void ConfigFile::startconfig(std::string _content)
+void ConfigFile::startconfig(std::string content)
 {
-    check_config(_content);
-    int c = multiserv(_content);
+    check_config(content);
+    int c = FT::count(content, "server ");
     if (c == 0)
         throw std::runtime_error("no Server block in config file");
-    std::string *tab = splitserv(_content, c);
+    std::string *tab = splitserv(content, c);
     std::string word = "listen ";
     std::string buff;
     for(int i = 0; i < c; i++)
@@ -117,4 +93,11 @@ void ConfigFile::startconfig(std::string _content)
         for (std::vector<unsigned short>::iterator at = temp.begin(); at != temp.end(); ++at)
                 port_config[*at].configs.push_back(&(*it));
     }
+}
+
+void ConfigFile::LoadFromFile(const std::string &path) {
+    std::string raw;
+
+    FT::get_file(raw, path);
+    startconfig(raw);
 }

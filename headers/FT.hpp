@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FT.hpp                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
+/*   By: scambier <scambier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/02 10:05:59 by ellehmim          #+#    #+#             */
-/*   Updated: 2025/02/04 17:00:44 by ellehmim         ###   ########.fr       */
+/*   Updated: 2025/02/13 16:04:18 by scambier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <cerrno>
 #include <sys/stat.h>
+#include <cstdlib>
 
 #include "Log.hpp"
 
@@ -46,6 +47,13 @@ namespace FT
 	const std::string& get_mime_type(const std::string& file);
 
 	void	replace(std::string& str, const char *from, const char *to);
+
+	std::string	get_value(const std::string& source, const std::string& name);
+	int			get_int(const std::string& source, const std::string& name);
+
+	bool		get_file(std::string& dst, const std::string& path);
+
+	int			count(const std::string& src, const std::string& word);
 }
 
 #endif
