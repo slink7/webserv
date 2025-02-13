@@ -24,10 +24,28 @@ int	main() {
 		Location l;
 		l.methods.push_back(HTTP::GET);
 		l.index = "test.html";
-		l.root = "var/www/test/";
+		l.root = "var/www/GETtest/";
 		l.path = "test/";
 
 		c.locations.push_back(l);
+
+        Location m;
+		m.methods.push_back(HTTP::POST);
+		m.index = "test.html";
+		m.root = "var/www/POSTtest/";
+		m.path = "test/";
+
+		c.locations.push_back(m);
+
+        Location n;
+		n.methods.push_back(HTTP::POST);
+		n.index = "test.html";
+		n.root = "var/www/noget/";
+		n.path = "noget/";
+
+		c.locations.push_back(n);
+
+        
 
 		std::cout << "Adding group\n";
 		cg.configs.push_back(c);

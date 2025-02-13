@@ -18,7 +18,7 @@ struct Config {
 	std::vector<Location>		locations;
 	HTTP::CGI					cgi;
 
-	std::string	EvaluateRoute(const HTTP::Request& req) const;
+	int	EvaluateRoute(std::string& out, const HTTP::Request& req) const;
 };
 
 #endif

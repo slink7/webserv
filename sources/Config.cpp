@@ -1,46 +1,47 @@
 #include "Config.hpp"
 
-
-
-std::string Config::EvaluateRoute(const HTTP::Request &req) const {
-	const std::string& path = req.GetTarget();
+int Config::EvaluateRoute(std::string& out, const HTTP::Request &req) const {
+	int wrong_method_count = 0;
+    const std::string& path = req.GetTarget();
+    Log::out(Log::REQUEST) << path << "\n";
 	
 	if (path.size() == 0) {
-		return (root + index);
+		out = root + index;
+		return (200);
 	}
 	for (std::vector<Location>::const_iterator it = locations.begin(); it != locations.end(); it++) {
-		Log::out(Log::DEBUG) << "Method: " << it->HasLimitedMethods() << ", " << it->HasMethod(req.GetMethod()) << "\n";
-        
-        if (it->HasLimitedMethods() && !it->HasMethod(req.GetMethod()))
-			continue ;
 		
         std::string t = it->path;
         FT::trim(t, " /");
 		std::size_t pos = path.find(t);
-		
-        Log::out(Log::DEBUG) << "T: " << t << "\n";
-        Log::out(Log::DEBUG) << "Pos: " << pos << "\n";
         
         if (pos != 0)
 			continue ;
+        
+        if (it->HasLimitedMethods() && !it->HasMethod(req.GetMethod())) {
+            wrong_method_count++;
+			continue ;
+        }
 
-		std::string temp = it->root + path.substr(pos + t.size());
-		
-        Log::out(Log::DEBUG) << "Path: " << path << ", " << pos << ", " << t.size() << "\n";
-        Log::out(Log::DEBUG) << "Root: " << it->root << ", " << path.substr(pos + t.size()) << "\n";
-        Log::out(Log::DEBUG) << "Temp: " << temp << "\n";
-        Log::out(Log::DEBUG) << "IsDir: " << FT::is_directory(temp) << "\n";
+		std::string temp = it->root + path.substr(t.size());
 
 		if (FT::is_directory(temp)) {
 			if (temp.at(temp.size() - 1) == '/')
-				return (temp + it->index);
+				out = temp + it->index;
 			else
-				return (temp + '/' + index);
+				out = temp + '/' + index;
 		} else
-			return (temp);
+    		out = temp;
+		return (200);
 	}
-	if (FT::is_directory(path))
-		return (root + path + index);
+    
+    if (wrong_method_count)
+        return (405);
+
+    std::string temp = root + path;
+	if (FT::is_directory(temp))
+		out = temp + "/" + index;
 	else
-		return (root + path);
+		out = temp;
+	return (200);
 }
