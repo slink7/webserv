@@ -18,6 +18,7 @@ SRC = \
 	Proxy.cpp\
 	ConfigGroup.cpp\
 	Location.cpp\
+	ConfigFile.cpp
 
 
 CFLAGS = -Wall -Werror -Wextra -g3 -std=c++98
