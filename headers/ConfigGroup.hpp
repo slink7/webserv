@@ -2,18 +2,20 @@
 #define CONFIGGROUP_HPP
 
 #include <vector>
+#include <iostream>
+#include <cstdlib>
 
 #include "Config.hpp"
-#include "Request.hpp"
 
-class ConfigGroup {
-public:
-	std::vector<Config>			configs;
-	std::vector<unsigned short>	port;
+class ConfigGroup;
 
-	ConfigGroup();
-
-	const Config&	GetConfig(HTTP::Request& req) const;
+class ConfigGroup
+{
+	public :
+		std::vector<Config*>			configs;
+		ConfigGroup();
+		~ConfigGroup();
+		void print();
 };
 
 #endif

@@ -131,3 +131,53 @@ void FT::trim(std::string &str, const std::string &set) {
 		return ;
 	str = str.substr(start, end - start + 1);
 }
+
+std::string FT::get_value(const std::string& source, const std::string& name) {
+    std::string res = "";
+    size_t start = source.find(name);
+	
+    if (start == std::string::npos)
+		return (res);
+
+	start = source.find_first_not_of(" \t\n", start + name.length());
+	size_t end = source.find(";", start);
+
+	if (end == std::string::npos)
+		return (res);
+		
+	res = source.substr(start, end - start);
+        
+    return (res);
+}
+
+int	FT::get_int(const std::string& source, const std::string& name) {
+	return (std::atoi(get_value(source, name).c_str()));
+}
+
+bool FT::get_file(std::string &dst, const std::string &path) {
+	if (FT::is_directory(path)) {
+		Log::out(Log::ERROR) << "Tried to open a directory : \"" << path << "\"\n";
+		return (false);
+	}
+	
+	std::ifstream file(path.c_str());
+
+	if (!file.is_open()) {
+		Log::out(Log::WARNING) << "File \"" << path << "\" couldn't be openned\n";
+		return (false);
+	}
+
+	dst.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+	return (true);
+}
+
+int FT::count(const std::string &src, const std::string &word) {
+	int	out = 0;
+
+    size_t pos = src.find(word);
+    while (pos != std::string::npos) {
+        out++;
+        pos = src.find(word, pos + word.length());
+    }
+	return (out);
+}

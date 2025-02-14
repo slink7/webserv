@@ -1,8 +1,26 @@
+<<<<<<< HEAD
 #include "CGI.hpp"
 
 #include "Response.hpp"
 
 bool	HTTP::CGI::Handle(const HTTP::Request& req, Config const* conf, int fd) const {
+=======
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   CGI.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ellehmim <ellehmim@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/02 10:04:14 by ellehmim          #+#    #+#             */
+/*   Updated: 2025/02/02 10:04:30 by ellehmim         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../headers/CGI.hpp"
+
+bool	HTTP::CGI::Handle(const HTTP::Request& req, int fd) const {
+>>>>>>> parsing
 	std::string path = req.GetTarget().substr(1);
 	std::map<std::string, std::string>::const_iterator it = GetIterator(path);
 	if (it == cgis.end()) {
@@ -62,7 +80,11 @@ bool	HTTP::CGI::Handle(const HTTP::Request& req, Config const* conf, int fd) con
 			Log::out(Log::FUNCTION) << "waitpid() failed: " << strerror(errno) << "\n";
 		Log::out(Log::DEBUG) << "Execve exited with code " << status << "\n"; 
 
+<<<<<<< HEAD
 		HTTP::Response rep(conf);
+=======
+		HTTP::Response rep;
+>>>>>>> parsing
 		rep.ReadCGI(ends[0]);
 		close(ends[0]);
 
