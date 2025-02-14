@@ -16,13 +16,14 @@
 #include "Log.hpp"
 #include "FT.hpp"
 #include "ConfigGroup.hpp"
+#include "ConfigFile.hpp"
 
 class Proxy {
 
 public:
 	Proxy();
 
-	bool							AddGroup(ConfigGroup& config);
+	bool							AddGroup(ConfigFile& file);
 	bool							AddSocket(ConfigGroup& config, unsigned short port);
 	void							AddFD(int fd, int events);
 	void							AddSocketsToPoll();

@@ -6,10 +6,10 @@ Proxy::Proxy() {
 	fds.reserve(max_fds_count);
 }
 
-bool Proxy::AddGroup(ConfigGroup &config)
+bool Proxy::AddGroup(ConfigFile &file)
 {
-	for (std::vector<unsigned short>::iterator it = config.port.begin(); it != config.port.end(); it++)
-		if (!AddSocket(config, *it))
+	for (std::map<unsigned short, ConfigGroup>::iterator it = file.port_config.begin(); it != file.port_config.end(); it++)
+		if (!AddSocket(it->second, it->first))
 			return (false);
 	return (true);
 }

@@ -11,20 +11,19 @@
 #include <fstream>
 #include <sstream>
 
+#include "FT.hpp"
 #include "Method.hpp"
 
 struct Location
 {
     private:
+    public:
         std::string                 location_block;
         std::string					path;
         std::string					root;
         std::string					index;
         std::vector<HTTP::Method>	methods;
-    public:
         Location(std::string& src);
-        Location(const Location& other);
-        Location& operator=(const Location& other);
         ~Location();
         std::string find_word(std::string word);
         std::string find_path(std::string word);

@@ -18,6 +18,7 @@
 class Config
 {
 	private :
+	public :
 		std::string					host;
 		std::string					server_name;
 		std::string					root;
@@ -27,7 +28,6 @@ class Config
 		std::vector<unsigned short>	ports;
 		std::vector<Location>		locations;
 		HTTP::CGI					cgi;
-	public :
 		Config();
 		Config(std::string& src);
 		~Config();

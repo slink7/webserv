@@ -16,6 +16,7 @@ class ConfigGroup
 		ConfigGroup();
 		~ConfigGroup();
 		void print();
+		const Config &GetConfig(HTTP::Request &req) const;
 };
 
 #endif

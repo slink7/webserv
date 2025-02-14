@@ -62,14 +62,14 @@ void HTTP::Response::LoadFromRequest(const HTTP::Request &req) {
 		SetError(501);
 	}
 	
-	Log::out(Log::RESPONSE) << "Raw target: \"" << req.GetTarget() << "\" (" << req.GetTarget().size() << ")\n";
+	Log::out(Log::DEBUG) << "Raw target: \"" << req.GetTarget() << "\" (" << req.GetTarget().size() << ")\n";
 	std::string actual_target = "";
 	int code = conf->EvaluateRoute(actual_target, req);
 	if (code != 200) {
 		SetError(code);
 		return ;
 	}
-	Log::out(Log::RESPONSE) << "Target: " << req.GetTarget() << "\nActual:  (" << actual_target << ")\n";
+	Log::out(Log::DEBUG) << "Target: " << req.GetTarget() << "\nActual:  (" << actual_target << ")\n";
 
 	if (FT::is_file(actual_target) && SetBodyFromFile(actual_target)) {
 		SetStatus("200 OK");

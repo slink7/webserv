@@ -36,10 +36,10 @@ static std::vector<unsigned short> porthandler(const std::string& src) {
 }
 
 Config::Config(std::string& src) :
-    host(FT::get_value(src, "host ")),
-    server_name(FT::get_value(src, "server_name ")),
-    root(FT::get_value(src, "root ")),
-    index(FT::get_value(src, "index ")),
+    host(FT::get_value(src, "host ", ";")),
+    server_name(FT::get_value(src, "server_name ", ";")),
+    root(FT::get_value(src, "root ", ";")),
+    index(FT::get_value(src, "index ", ";")),
     max_body_length(FT::get_int(src, "client_max_body_size "))
 {
     ports = porthandler(src);
@@ -111,14 +111,14 @@ void Config::Print() const {
 int Config::EvaluateRoute(std::string& out, const HTTP::Request &req) const {
 	int wrong_method_count = 0;
     const std::string& path = req.GetTarget();
-    Log::out(Log::REQUEST) << path << "\n";
+    Log::out(Log::DEBUG) << path << "\n";
 	
 	if (path.size() == 0) {
 		out = root + index;
 		return (200);
 	}
-	for (std::vector<Location>::const_iterator it = locations.begin(); it != locations.end(); it++) {
-		
+    for (std::vector<Location>::const_iterator it = locations.begin(); it != locations.end(); it++) {
+        
         std::string t = it->path;
         FT::trim(t, " /");
 		std::size_t pos = path.find(t);
